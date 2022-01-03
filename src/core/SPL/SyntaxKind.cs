@@ -8,6 +8,9 @@ namespace BGC.Core
 {
     public enum SyntaxKind
     {
+        none,
+        BadToken,
+
         SingleLineCommentToken,
         MultilineCommentToken,
         DezimalLiteralToken,
