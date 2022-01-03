@@ -16,21 +16,75 @@ namespace BGC.Core.Parser
 
             var reader = new SlidingTextWindow(source);
 
-            string text = "";
+            TokenHelper token = new TokenHelper();
+
+            var c = reader.PeekChar();
 
             while (!reader.IsReallyAtEnd())
             {
-                
-                var c = reader.NextChar();
+                switch (c)
+                {
+                    case '/':
+                        if (reader.PeekChar(1) == '/') LexComment(ref token, reader);
+                        else if (reader.PeekChar(1) == '*') LexMultilineComment(ref token, reader);
+                        else goto default;
+                        break;
+                    default:
+                        reader.AdvanceChar();
+                        break;
+                }
 
-                text += c;
-
+                list.Add(CreateNode(token));
             }
 
-            var node = new Syntax.SyntaxNode(SyntaxKind.BadToken, text);
-            list.Add(node);
+            
+            
 
             return list;
         }
+
+        private void LexComment(ref TokenHelper token, SlidingTextWindow reader)
+        {
+            var text = "";
+            var c = '\0';
+
+            do
+            {
+                c = reader.NextChar();
+                text += c;
+
+            } while (!reader.IsReallyAtEnd() && c != '\n');
+
+            token.Kind = SyntaxKind.SingleLineCommentToken;
+            token.Text = text;
+        }
+        private void LexMultilineComment(ref TokenHelper token, SlidingTextWindow reader)
+        {
+            var text = "";
+            var c = '\0';
+
+            do
+            {
+                c = reader.NextChar();
+                text += c;
+
+            } while (!reader.IsReallyAtEnd() && !text.EndsWith("*/"));
+
+            token.Kind = SyntaxKind.MultilineCommentToken;
+            token.Text = text;
+        }
+
+        private SyntaxNode CreateNode(TokenHelper token)
+        {
+            var node = new Syntax.SyntaxNode(token.Kind, token.Text);
+            return node;
+        }
+
+        private class TokenHelper
+        {
+            public SyntaxKind Kind= SyntaxKind.none;
+            public string Text;
+        }
+
     }
 }
