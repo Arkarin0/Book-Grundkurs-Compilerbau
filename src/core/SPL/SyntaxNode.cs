@@ -8,8 +8,8 @@ namespace BGC.Core
 {
     public abstract partial class SyntaxNode
     {            
-        SyntaxKind Kind { get; init; }
+        public SyntaxKind Kind { get; init; }
 
-        string ValueText { get; init; }
+        public string ValueText { get; init; }
     }
 }
