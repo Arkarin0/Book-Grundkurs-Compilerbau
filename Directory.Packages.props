@@ -1,0 +1,18 @@
+
+<!--
+	This file Contains the version numbers for NugetPackages used inthis solution.
+	So if you need to add a Nuget package to one of your projects make sure to add it here with the Version you need.
+ -->
+<Project>
+
+	
+	<ItemGroup>
+		<!--XUnit-->
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+		<PackageVersion Include="xunit" Version="2.4.1" />
+		<PackageVersion Include="xunit.runner.visualstudio" Version="2.4.3"/>
+		<PackageVersion Include="coverlet.collector" Version="3.1.0"/>
+
+	</ItemGroup>
+</Project>
+
