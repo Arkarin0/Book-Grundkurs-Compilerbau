@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis.Text;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BGC.Core.Syntax.InternalSyntax
+namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 {
     internal class SlidingTextWindow : IDisposable
     {
@@ -24,7 +25,7 @@ namespace BGC.Core.Syntax.InternalSyntax
 
         private const int DefaultWindowLength = 2048;
 
-        private readonly string _text;                     // Source of text to parse.
+        private readonly SourceText _text;                     // Source of text to parse.
         private int _basis;                                // Offset of the window relative to the SourceText start.
         private int _offset;                               // Offset from the start of the window.
         private readonly int _textEnd;                     // Absolute end position
@@ -40,7 +41,7 @@ namespace BGC.Core.Syntax.InternalSyntax
         // The current lexeme started at (basis + lexemeStart), which is <= (basis + offset)
         // The current lexeme is the characters between the lexemeStart and the offset.
 
-        public SlidingTextWindow(string text)
+        public SlidingTextWindow(SourceText text)
         {
             _text = text;
             _basis = 0;
@@ -48,7 +49,7 @@ namespace BGC.Core.Syntax.InternalSyntax
             _textEnd = text.Length;
             //_strings = StringTable.GetInstance();
             //_characterWindow = s_windowPool.Allocate();
-            _characterWindow = text.ToCharArray();
+            _characterWindow = new char[_textEnd]; _text.CopyTo(0, _characterWindow, 0, _textEnd);
             _lexemeStart = 0;
         }
 
@@ -72,6 +73,14 @@ namespace BGC.Core.Syntax.InternalSyntax
             {
                 return _offset;
             }
+        }
+
+        /// <summary>
+        /// Start parsing a new lexeme.
+        /// </summary>
+        public void Start()
+        {
+            _lexemeStart = _offset;
         }
 
         public void Reset(int position)
@@ -221,41 +230,18 @@ namespace BGC.Core.Syntax.InternalSyntax
             return ch;
         }
 
-       
 
-      
 
-        #region IDisposeable    
-        private bool disposedValue;
 
-        protected virtual void Dispose(bool disposing)
+
+        public void Dispose()
         {
-            if (!disposedValue)
+            if (_characterWindow != null)
             {
-                if (disposing)
-                {
-                    // TODO: Verwalteten Zustand (verwaltete Objekte) bereinigen
-                }
-
-                // TODO: Nicht verwaltete Ressourcen (nicht verwaltete Objekte) freigeben und Finalizer überschreiben
-                // TODO: Große Felder auf NULL setzen
-                disposedValue = true;
+                //s_windowPool.Free(_characterWindow);
+                _characterWindow = null;
+                //_strings.Free();
             }
         }
-
-        // // TODO: Finalizer nur überschreiben, wenn "Dispose(bool disposing)" Code für die Freigabe nicht verwalteter Ressourcen enthält
-        // ~SlidingTextWindow()
-        // {
-        //     // Ändern Sie diesen Code nicht. Fügen Sie Bereinigungscode in der Methode "Dispose(bool disposing)" ein.
-        //     Dispose(disposing: false);
-        // }
-
-        void IDisposable.Dispose()
-        {
-            // Ändern Sie diesen Code nicht. Fügen Sie Bereinigungscode in der Methode "Dispose(bool disposing)" ein.
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-        #endregion IDisposeable
     }
 }
