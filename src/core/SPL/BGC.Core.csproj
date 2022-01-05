@@ -1,6 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <RootNamespace>BGC.CodeAnalysis.SPL</RootNamespace>
   </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
+		
+	</ItemGroup>
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="BGC.SPL.Tests" />
+		
+	</ItemGroup>
 
 </Project>

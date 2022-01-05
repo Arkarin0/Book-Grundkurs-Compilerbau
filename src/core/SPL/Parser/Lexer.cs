@@ -1,6 +1,10 @@
-﻿using BGC.Core.Syntax.InternalSyntax;
+﻿using BGC.CodeAnalysis.SPL;
+using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
+using BGC.CodeAnalysis.Syntax.InternalSyntax;
+using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -8,82 +12,208 @@ using System.Threading.Tasks;
 
 namespace BGC.Core.Parser
 {
-    public class Lexer
+    internal partial class Lexer:AbstractLexer
     {
-        public IEnumerable<SyntaxNode> Lex(string source)
+        private const int TriviaListInitialCapacity = 8;
+
+        internal struct TokenInfo
         {
-            List<SyntaxNode> list = new List<SyntaxNode>();
+            internal SyntaxKind Kind;
+            internal string Text;
+        }
 
-            var reader = new SlidingTextWindow(source);
+        public Lexer(SourceText text)
+            :base(text)
+        {
 
-            TokenHelper token = new TokenHelper();
+        }
 
-            var c = reader.PeekChar();
 
-            while (!reader.IsReallyAtEnd())
+#if DEBUG
+        internal static int TokensLexed;
+#endif
+
+        public SyntaxToken Lex()
+        {
+#if DEBUG
+            TokensLexed++;
+#endif
+
+            //return this.QuickScanSyntaxToken() ?? this.LexSyntaxToken();
+            return this.LexSyntaxToken();
+        }
+
+        private SyntaxListBuilder _leadingTriviaCache = new SyntaxListBuilder(10);
+        private SyntaxListBuilder _trailingTriviaCache = new SyntaxListBuilder(10);
+
+        //private static int GetFullWidth(SyntaxListBuilder builder)
+        //{
+        //    int width = 0;
+
+        //    if (builder != null)
+        //    {
+        //        for (int i = 0; i < builder.Count; i++)
+        //        {
+        //            width += builder[i].FullWidth;
+        //        }
+        //    }
+
+        //    return width;
+        //}
+
+        private SyntaxToken LexSyntaxToken()
+        {
+            _leadingTriviaCache.Clear();
+            this.LexSyntaxTrivia(afterFirstToken: TextWindow.Position > 0, isTrailing: false, triviaList: ref _leadingTriviaCache);
+            var leading = _leadingTriviaCache;
+
+            var tokenInfo = default(TokenInfo);
+
+            this.Start();
+            this.ScanSyntaxToken(ref tokenInfo);
+            //var errors = this.GetErrors(GetFullWidth(leading));
+            var errors = new object[0];
+
+            _trailingTriviaCache.Clear();
+            this.LexSyntaxTrivia(afterFirstToken: true, isTrailing: true, triviaList: ref _trailingTriviaCache);
+            var trailing = _trailingTriviaCache;
+
+            return Create(ref tokenInfo, leading, trailing, errors);
+        }
+
+        private void ScanSyntaxToken(ref TokenInfo info)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void LexComment(ref TokenInfo token, SlidingTextWindow reader)
+        {
+            //var text = "";
+            //var c = '\0';
+
+            //do
+            //{
+            //    c = reader.NextChar();
+            //    text += c;
+
+            //} while (!reader.IsReallyAtEnd() && c != '\n');
+
+            //token.Kind = SyntaxKind.SingleLineCommentToken;
+            //token.Text = text;
+        }
+        private void LexMultilineComment(ref TokenInfo token, SlidingTextWindow reader)
+        {
+            //var text = "";
+            //var c = '\0';
+
+            //do
+            //{
+            //    c = reader.NextChar();
+            //    text += c;
+
+            //} while (!reader.IsReallyAtEnd() && !text.EndsWith("*/"));
+
+            //token.Kind = SyntaxKind.MultilineCommentToken;
+            //token.Text = text;
+        }
+
+        //private SyntaxToken Create(ref TokenInfo info, SyntaxListBuilder leading, SyntaxListBuilder trailing, SyntaxDiagnosticInfo[] errors)
+        private SyntaxToken Create(ref TokenInfo info, SyntaxListBuilder leading, SyntaxListBuilder trailing, object[] errors)
+        {
+            //Debug.Assert(info.Kind != SyntaxKind.IdentifierToken || info.StringValue != null);
+
+            //var leadingNode = leading?.ToListNode();
+            //var trailingNode = trailing?.ToListNode();
+
+            SyntaxToken token;
+
+            //switch (info.Kind)
+            //{
+            //    case SyntaxKind.none:
+            //        token= SyntaxFactory.BadToken()
+
+            //    default:
+
+            //        break;
+            //}
+
+            throw new NotImplementedException();
+        }
+
+        private void LexSyntaxTrivia(bool afterFirstToken, bool isTrailing, ref SyntaxListBuilder triviaList)
+        {
+            bool onlyWhitespaceOnLine = !isTrailing;
+
+            while(true)
             {
-                switch (c)
+                this.Start();
+                char ch = TextWindow.PeekChar();
+
+                //out of range of UTF-7
+                if(ch > 127)
                 {
-                    case '/':
-                        if (reader.PeekChar(1) == '/') LexComment(ref token, reader);
-                        else if (reader.PeekChar(1) == '*') LexMultilineComment(ref token, reader);
-                        else goto default;
-                        break;
-                    default:
-                        reader.AdvanceChar();
-                        break;
+                    if (SyntaxFacts.IsNewLine(ch))
+                    {
+                        ch = '\n';
+                    }
                 }
 
-                list.Add(CreateNode(token));
+                switch (ch)
+                {
+                    case '\r':
+                    case '\n':
+                        this.AddTrivia(this.ScanEndOfLine(), ref triviaList);
+
+                        if(isTrailing)
+                        {
+                            return;
+                        }
+
+                        onlyWhitespaceOnLine = true;
+                        break;
+
+                    default:
+                        return;
+                }
+            }
+        }
+
+        private void AddTrivia(SPLSyntaxNode trivia, ref SyntaxListBuilder list)
+        {
+            //if (this.HasErrors)
+            //{
+            //    trivia = trivia.WithDiagnosticsGreen(this.GetErrors(leadingTriviaWidth: 0));
+            //}
+
+            if (list == null)
+            {
+                list = new SyntaxListBuilder(TriviaListInitialCapacity);
             }
 
-            
-            
-
-            return list;
+            list.Add(trivia);
         }
 
-        private void LexComment(ref TokenHelper token, SlidingTextWindow reader)
+
+        //#########################################################################################
+
+        /// <summary>
+        /// Scans a new-line sequence (either a single new-line character or a CR-LF combo).
+        /// </summary>
+        /// <returns>A trivia node with the new-line text</returns>
+        private SPLSyntaxNode ScanEndOfLine()
         {
-            var text = "";
-            var c = '\0';
+            char ch;
+            switch (ch= TextWindow.PeekChar())
+            {                
+                default:
+                    if( SyntaxFacts.IsNewLine(ch))
+                    {
+                        TextWindow.AdvanceChar();
+                        return SyntaxFactory.EndOfLine(ch.ToString());
+                    }
 
-            do
-            {
-                c = reader.NextChar();
-                text += c;
-
-            } while (!reader.IsReallyAtEnd() && c != '\n');
-
-            token.Kind = SyntaxKind.SingleLineCommentToken;
-            token.Text = text;
-        }
-        private void LexMultilineComment(ref TokenHelper token, SlidingTextWindow reader)
-        {
-            var text = "";
-            var c = '\0';
-
-            do
-            {
-                c = reader.NextChar();
-                text += c;
-
-            } while (!reader.IsReallyAtEnd() && !text.EndsWith("*/"));
-
-            token.Kind = SyntaxKind.MultilineCommentToken;
-            token.Text = text;
-        }
-
-        private SyntaxNode CreateNode(TokenHelper token)
-        {
-            var node = new Syntax.SyntaxNode(token.Kind, token.Text);
-            return node;
-        }
-
-        private class TokenHelper
-        {
-            public SyntaxKind Kind= SyntaxKind.none;
-            public string Text;
+                    return null;
+            }
         }
 
     }

@@ -4,13 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BGC.Core
+namespace BGC.CodeAnalysis.SPL
 {
     public enum SyntaxKind
     {
         none,
         BadToken,
 
+        
         SingleLineCommentToken,
         MultilineCommentToken,
         DezimalLiteralToken,
@@ -30,5 +31,8 @@ namespace BGC.Core
         IntTypeKeyword,
 
         IdentifierSyntaxKind,
+
+        EndOfLineTrivia,
+        WhitespaceTrivia,
     }
 }

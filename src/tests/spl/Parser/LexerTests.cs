@@ -6,76 +6,82 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using BGC.CodeAnalysis.SPL;
+using Microsoft.CodeAnalysis.Text;
+using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 
 namespace BGC.Core.Parser.Tests
 {
     public class LexerTests
     {
-        (Lexer, TextReader ) CreateValidInstance( string text="")
+        Lexer CreateValidInstance( string text="")
         {
-            var lexer = new Lexer();
-            var reader = new StringReader(text);
-
-            return (lexer, reader);
+            var lexer = new Lexer(SourceText.From(text));
+            return lexer;
         }
 
-        [Fact()]
-        public void LexTest()
+        SyntaxToken Lex(string text)
         {
-            (var lexer, var reader) = this.CreateValidInstance();
+            var lexer = CreateValidInstance(text);
 
-            Assert.NotNull(lexer);
-            Assert.NotNull(reader);
-
-            string text = "abc";
-            var actual =lexer.Lex(text);
-
-            Assert.NotEmpty(actual);
-
-            var item = actual.First();
-            Assert.Equal(text, item.ValueText);
+            return lexer.Lex();
         }
+
 
         [Fact()]
         public void LexSingleLineCommentTest()
         {
-            (var lexer, var reader) = this.CreateValidInstance();
-
-
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abc");
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abcdef//fgh");
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abcdef     //fgh");
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abcdef\r//fgh");
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij");
-            LexCommentTestHelper(lexer, SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij\r\n");
+            LexCommentTestHelper(SyntaxKind.SingleLineCommentToken, "//abc");
+            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef//fgh");
+            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef     //fgh");
+            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\r//fgh");
+            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij");
+            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij\r\n");
 
         }
         [Fact()]
         public void LexMultiLineCommentTest()
         {
-            (var lexer, var reader) = this.CreateValidInstance();
+            
 
 
-            LexCommentTestHelper(lexer, SyntaxKind.MultilineCommentToken, "/*abc*/");
-            LexCommentTestHelper(lexer, SyntaxKind.MultilineCommentToken, "/*abcdef  def//fgh*/");
-            LexCommentTestHelper(lexer, SyntaxKind.MultilineCommentToken, "/*abcdef\r\nfgh*/");
-            LexCommentTestHelper(lexer, SyntaxKind.MultilineCommentToken, "/*abcdef\r\n//fgh*/");
-            LexCommentTestHelper(lexer, SyntaxKind.MultilineCommentToken, "/*abcdef\n*/", "/*ghij*/");
+            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abc*/");
+            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef  def//fgh*/");
+            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\r\nfgh*/");
+            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\r\n//fgh*/");
+            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\n*/", "/*ghij*/");
             
 
         }
-        private void LexCommentTestHelper(Lexer lexer,SyntaxKind kind, params string[] text)
+        private void LexCommentTestHelper(SyntaxKind kind, params string[] text)
         {
             string expected = string.Join("", text);
-            var actual = lexer.Lex(expected);
+            var lexer = this.CreateValidInstance(expected);
+            var actual = lexer.Lex();
 
             int index = 0;
-            Assert.All(actual, (item) =>
-            {
-                var expectedText = text[index++];
-                Assert.Equal(expectedText, item.ValueText);
-                Assert.Equal(kind, item.Kind);
-            });
+            //Assert.All(actual, (item) =>
+            //{
+            //    var expectedText = text[index++];
+            //    Assert.Equal(expectedText, item.ValueText);
+            //    Assert.Equal(kind, item.Kind);
+            //});
+        }
+
+        [Theory()]
+        [InlineData("\r")]
+        [InlineData("\n")]
+        [InlineData("\u0085")]
+        [InlineData("\u2028")]
+        [InlineData("\u2029")]
+        public void LexEndOfLineTriviaTest(string text)
+        {
+            
+            var actualToken = Lex(text);
+
+            Assert.Equal(SyntaxKind.EndOfLineTrivia, actualToken.Kind);
+            Assert.Equal(text, actualToken.ToString());
+
         }
     }
 }
