@@ -4,11 +4,11 @@
 
 using System;
 using System.Diagnostics;
-using Roslyn.Utilities;
+using Sonea.Utilities;
 
-namespace BGC.CodeAnalysis.Syntax.InternalSyntax
+namespace Arkarin0.CodeAnalysis.Syntax
 {
-    internal partial struct SyntaxList<TNode> : IEquatable<SyntaxList<TNode>>
+    public partial struct SyntaxList<TNode> : IEquatable<SyntaxList<TNode>>
         where TNode : GreenNode
     {
         private readonly GreenNode? _node;
@@ -57,13 +57,13 @@ namespace BGC.CodeAnalysis.Syntax.InternalSyntax
         internal TNode GetRequiredItem(int index)
         {
             var node = this[index];
-           
+            //RoslynDebug.Assert(node is object);
             return node;
         }
 
         internal GreenNode? ItemUntyped(int index)
         {
-            
+            //RoslynDebug.Assert(_node is object);
             var node = this._node;
             if (node.IsList)
             {
@@ -109,7 +109,7 @@ namespace BGC.CodeAnalysis.Syntax.InternalSyntax
         {
             get
             {
-                
+                //RoslynDebug.Assert(_node is object);
                 var node = this._node;
                 if (node.IsList)
                 {

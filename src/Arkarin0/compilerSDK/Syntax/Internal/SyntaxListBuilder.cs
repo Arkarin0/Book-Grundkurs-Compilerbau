@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BGC.CodeAnalysis.Syntax.InternalSyntax
+namespace Arkarin0.CodeAnalysis.Syntax
 {
-    internal class SyntaxListBuilder
+    public class SyntaxListBuilder
     {
         private ArrayElement<GreenNode?>[] _nodes;
         public int Count { get; private set; }
@@ -21,6 +21,8 @@ namespace BGC.CodeAnalysis.Syntax.InternalSyntax
         {
             return new SyntaxListBuilder(8);
         }
+
+
 
         public void Clear()
         {
@@ -188,14 +190,14 @@ namespace BGC.CodeAnalysis.Syntax.InternalSyntax
             }
         }
 
-        public SyntaxList<GreenNode> ToList()
-        {
-            return new SyntaxList<GreenNode>(ToListNode());
-        }
+        //public SyntaxList<GreenNode> ToList()
+        //{
+        //    return new SyntaxList<GreenNode>(ToListNode());
+        //}
 
-        public SyntaxList<TNode> ToList<TNode>() where TNode : GreenNode
-        {
-            return new SyntaxList<TNode>(ToListNode());
-        }
+        //public SyntaxList<TNode> ToList<TNode>() where TNode : GreenNode
+        //{
+        //    return new SyntaxList<TNode>(ToListNode());
+        //}
     }
 }

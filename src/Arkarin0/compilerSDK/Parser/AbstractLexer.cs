@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
+namespace Arkarin0.CodeAnalysis
 {
-    internal class AbstractLexer : IDisposable
+    public abstract class AbstractLexer : IDisposable
     {
 
-        internal readonly SlidingTextWindow TextWindow;
-
+        protected readonly SlidingTextWindow TextWindow;
 
 
         protected AbstractLexer(SourceText text)

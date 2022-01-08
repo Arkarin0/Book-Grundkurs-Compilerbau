@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Arkarin0.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 {
-    internal class SyntaxTrivia : SPLSyntaxNode
+    internal class SyntaxTrivia : SyntaxToken
     {
         public readonly string Text;
 
@@ -21,14 +22,12 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             return new SyntaxTrivia(kind, text);
         }
 
-        //public override string ToFullString()
-        //{
-        //    return this.Text;
-        //}
 
-        public override string ToString()
+        public override GreenNode GetSlot(int index)
         {
-            return this.Text;
+            throw Sonea.Utilities.ExceptionUtilities.Unreachable;
         }
+
+
     }
 }

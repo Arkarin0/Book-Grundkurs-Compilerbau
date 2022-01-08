@@ -1,5 +1,6 @@
 ﻿#nullable disable
 
+using Arkarin0.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 {
-    using BGC.CodeAnalysis.Syntax.InternalSyntax;
+    //using BGC.CodeAnalysis.Syntax.InternalSyntax;
 
     internal static partial class SyntaxFactory
     {
@@ -72,15 +73,15 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 
 
 
-        //public static SyntaxToken Token(SyntaxKind kind)
-        //{
-        //    return SyntaxToken.Create(kind);
-        //}
+        public static SyntaxToken Token(SyntaxKind kind)
+        {
+            return SyntaxToken.Create(kind);
+        }
 
-        //internal static SyntaxToken Token(GreenNode leading, SyntaxKind kind, GreenNode trailing)
-        //{
-        //    return SyntaxToken.Create(kind, leading, trailing);
-        //}
+        internal static SyntaxToken Token(GreenNode leading, SyntaxKind kind, GreenNode trailing)
+        {
+            return SyntaxToken.Create(kind, leading, trailing);
+        }
 
 
     }

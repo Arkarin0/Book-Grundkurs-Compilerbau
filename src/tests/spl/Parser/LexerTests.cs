@@ -31,25 +31,26 @@ namespace BGC.Core.Parser.Tests
         [Fact()]
         public void LexSingleLineCommentTest()
         {
-            LexCommentTestHelper(SyntaxKind.SingleLineCommentToken, "//abc");
-            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef//fgh");
-            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef     //fgh");
-            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\r//fgh");
-            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij");
-            LexCommentTestHelper( SyntaxKind.SingleLineCommentToken, "//abcdef\n", "//ghij\r\n");
+            var kind = SyntaxKind.SingleLineCommentTrivia;
+            LexCommentTestHelper(kind, "//abc");
+            LexCommentTestHelper(kind, "//abcdef//fgh");
+            LexCommentTestHelper(kind, "//abcdef     //fgh");
+            LexCommentTestHelper(kind, "//abcdef\r//fgh");
+            LexCommentTestHelper(kind, "//abcdef\n", "//ghij");
+            LexCommentTestHelper(kind, "//abcdef\n", "//ghij\r\n");
 
         }
         [Fact()]
         public void LexMultiLineCommentTest()
         {
-            
+            var kind = SyntaxKind.MultiLineCommentTrivia;
 
 
-            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abc*/");
-            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef  def//fgh*/");
-            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\r\nfgh*/");
-            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\r\n//fgh*/");
-            LexCommentTestHelper( SyntaxKind.MultilineCommentToken, "/*abcdef\n*/", "/*ghij*/");
+            LexCommentTestHelper(kind, "/*abc*/");
+            LexCommentTestHelper(kind, "/*abcdef  def//fgh*/");
+            LexCommentTestHelper(kind, "/*abcdef\r\nfgh*/");
+            LexCommentTestHelper(kind, "/*abcdef\r\n//fgh*/");
+            LexCommentTestHelper(kind, "/*abcdef\n*/", "/*ghij*/");
             
 
         }
@@ -71,9 +72,10 @@ namespace BGC.Core.Parser.Tests
         [Theory()]
         [InlineData("\r")]
         [InlineData("\n")]
+        [InlineData("\r\n")]
         [InlineData("\u0085")]
         [InlineData("\u2028")]
-        [InlineData("\u2029")]
+        [InlineData("\u2029")]        
         public void LexEndOfLineTriviaTest(string text)
         {
             

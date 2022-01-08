@@ -5,9 +5,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
+namespace Arkarin0.CodeAnalysis
 {
-    internal class SlidingTextWindow : IDisposable
+    /// <summary>
+    /// This class is used to move in the SourceText.
+    /// This class cannot be inherited.
+    /// Implements the <see cref="System.IDisposable" />
+    /// </summary>
+    /// <seealso cref="System.IDisposable" />
+    public sealed class SlidingTextWindow : IDisposable
     {
         /// <summary>
         /// In many cases, e.g. PeekChar, we need the ability to indicate that there are

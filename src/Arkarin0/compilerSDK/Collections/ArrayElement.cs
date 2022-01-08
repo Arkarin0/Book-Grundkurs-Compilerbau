@@ -5,12 +5,12 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace BGC.CodeAnalysis
+namespace Arkarin0.CodeAnalysis
 {
     [DebuggerDisplay("{Value,nq}")]
-    internal struct ArrayElement<T>
+    public struct ArrayElement<T>
     {
-        internal T Value;
+        public T Value;
 
         public static implicit operator T(ArrayElement<T> element)
         {

@@ -1,6 +1,7 @@
-﻿using BGC.CodeAnalysis.SPL;
+﻿using Arkarin0.CodeAnalysis;
+using Arkarin0.CodeAnalysis.Syntax;
+using BGC.CodeAnalysis.SPL;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
-using BGC.CodeAnalysis.Syntax.InternalSyntax;
 using Microsoft.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
@@ -83,7 +84,25 @@ namespace BGC.Core.Parser
 
         private void ScanSyntaxToken(ref TokenInfo info)
         {
-            throw new NotImplementedException();
+            //initilaize for new token scan
+            info.Kind = SyntaxKind.None;
+            info.Text = null;
+
+            char character;
+            int startingPosition = TextWindow.Position;
+
+            //start scanning
+            character = TextWindow.PeekChar();
+            switch (character)
+            {
+
+                default:
+                    TextWindow.AdvanceChar();
+                    info.Text = "noInfo";
+                    break;
+            }
+
+            
         }
 
         private void LexComment(ref TokenInfo token, SlidingTextWindow reader)
@@ -122,22 +141,29 @@ namespace BGC.Core.Parser
         {
             //Debug.Assert(info.Kind != SyntaxKind.IdentifierToken || info.StringValue != null);
 
-            //var leadingNode = leading?.ToListNode();
-            //var trailingNode = trailing?.ToListNode();
+            var leadingNode = leading?.ToListNode();
+            var trailingNode = trailing?.ToListNode();
 
             SyntaxToken token;
 
-            //switch (info.Kind)
-            //{
-            //    case SyntaxKind.none:
-            //        token= SyntaxFactory.BadToken()
+            switch (info.Kind)
+            {
+                //case SyntaxKind.none:
+                //    token = SyntaxFactory.BadToken()
 
-            //    default:
+                case SyntaxKind.EndOfLineTrivia:
+                    token = SyntaxFactory.EndOfLine(info.Text);
+                    break;
 
-            //        break;
-            //}
+                default:
+                    token = new SyntaxToken(SyntaxKind.BadToken);
+                    token = SyntaxFactory.Token(leading, info.Kind, trailing);
+                    break;
+            }
 
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+
+            return token;
         }
 
         private void LexSyntaxTrivia(bool afterFirstToken, bool isTrailing, ref SyntaxListBuilder triviaList)
@@ -204,7 +230,10 @@ namespace BGC.Core.Parser
         {
             char ch;
             switch (ch= TextWindow.PeekChar())
-            {                
+            {
+                case '\n':
+                    TextWindow.AdvanceChar();
+                    return SyntaxFactory.EndOfLine(ch.ToString());
                 default:
                     if( SyntaxFacts.IsNewLine(ch))
                     {

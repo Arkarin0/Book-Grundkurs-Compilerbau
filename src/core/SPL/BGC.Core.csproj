@@ -4,6 +4,10 @@
     <RootNamespace>BGC.CodeAnalysis.SPL</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\Arkarin0\compilerSDK\InternalUtils\ExceptionUtilities.cs" Link="other\ExceptionUtilities.cs" />
+  </ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.Common" />
 		
@@ -12,6 +16,10 @@
 	<ItemGroup>
 		<InternalsVisibleTo Include="BGC.SPL.Tests" />
 		
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Arkarin0\compilerSDK\Arkarin0.CompilerSDK.csproj" />
 	</ItemGroup>
 
 </Project>
