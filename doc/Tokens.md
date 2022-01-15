@@ -45,6 +45,11 @@ The **EndOfFile** - Token is assumed to be the last textles token.
 
 
 ## List of Tokens containing a value.
+folowing the textless tokens. the tokens with value start.
 |utf-8|SyntaxKind|Description|sample|
 |:--:|:--:|:--:|:--:|
+|**Trivia**|
+|"\r", "\n", "\r\n"|EndOfLineTrivia|Represents the end of a textline.|-|
+|" ", "\t"|WhitspaceTrivia|Represents one or more whitespaces. |-|
+
 
