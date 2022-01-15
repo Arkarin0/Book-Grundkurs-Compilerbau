@@ -51,5 +51,7 @@ folowing the textless tokens. the tokens with value start.
 |**Trivia**|
 |"\r", "\n", "\r\n"|EndOfLineTrivia|Represents the end of a textline.|-|
 |" ", "\t"|WhitspaceTrivia|Represents one or more whitespaces. |-|
+|//|SingleLineCommentTrivia|Represents a comment. the Comments spans over the complete line|`//her goes the comment`|
+
 
 
