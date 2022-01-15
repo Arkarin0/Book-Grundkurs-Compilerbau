@@ -50,6 +50,7 @@ folowing the textless tokens. the tokens with value start.
 |:--:|:--:|:--:|:--:|
 |**tokens with value**|
 ||BadToken|This is text which cannot be recognized as a token.|
+|'a'|CharacterLiteralToken|Represents a single character. The Character is stored in an `int` type variable. The value Represents the **ASCII** value. |var c:int; c:='a'; c:= '\n';`
 |**Trivia**|
 |"\r", "\n", "\r\n"|EndOfLineTrivia|Represents the end of a textline.|-|
 |" ", "\t"|WhitspaceTrivia|Represents one or more whitespaces. |-|
