@@ -49,7 +49,8 @@ folowing the textless tokens. the tokens with value start.
 |utf-8|SyntaxKind|Description|sample|
 |:--:|:--:|:--:|:--:|
 |**tokens with value**|
-||BadToken|This is text which cannot be recognized as a token.|
+||BadToken|This is text which cannot be recognized as a token.|-|
+|123</br>0x5F|NumericalLiteralToken|Represents a numerical value. Tha valid range is 0 to 2<sup>32</sup> -1.| `var x:int; x := 123; x:= 0x5F;`|
 |'a'|CharacterLiteralToken|Represents a single character. The Character is stored in an `int` type variable. The value Represents the **ASCII** value. |var c:int; c:='a'; c:= '\n';`
 |**Trivia**|
 |"\r", "\n", "\r\n"|EndOfLineTrivia|Represents the end of a textline.|-|
