@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyse", "Analyse", "{8F26597C-57AC-4DC8-B750-AB800BD91FBB}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SDK", "SDK", "{3226E66A-B4BA-471D-A1CC-54525F89C798}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arkarin0.CompilerSDK", "src\Arkarin0\compilerSDK\Arkarin0.CompilerSDK.csproj", "{9F19455C-B536-43B5-A870-73A5654EB07D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arkarin0.CompilerSDK.Tests", "src\Arkarin0\Tests\Arkarin0.CompilerSDK.Tests.csproj", "{A1AA8393-1185-4C9A-9063-34B51E913097}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,6 +67,18 @@ Global
 		{9F19455C-B536-43B5-A870-73A5654EB07D}.Release|x64.Build.0 = Release|Any CPU
 		{9F19455C-B536-43B5-A870-73A5654EB07D}.Release|x86.ActiveCfg = Release|Any CPU
 		{9F19455C-B536-43B5-A870-73A5654EB07D}.Release|x86.Build.0 = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|x64.Build.0 = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Debug|x86.Build.0 = Debug|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|x64.ActiveCfg = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|x64.Build.0 = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|x86.ActiveCfg = Release|Any CPU
+		{A1AA8393-1185-4C9A-9063-34B51E913097}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +88,7 @@ Global
 		{1FA330CE-CE07-4E93-AB64-7E7FCC32951A} = {8F26597C-57AC-4DC8-B750-AB800BD91FBB}
 		{3226E66A-B4BA-471D-A1CC-54525F89C798} = {711CEDCA-46B0-4C37-9653-297D30C81FA9}
 		{9F19455C-B536-43B5-A870-73A5654EB07D} = {3226E66A-B4BA-471D-A1CC-54525F89C798}
+		{A1AA8393-1185-4C9A-9063-34B51E913097} = {3226E66A-B4BA-471D-A1CC-54525F89C798}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4A0BA839-F915-4854-8CBD-03FF5E53ED2C}
