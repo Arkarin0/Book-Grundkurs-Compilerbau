@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\core\SPL\BGC.Core.csproj" />
+    <ProjectReference Include="..\..\core\SPL\BGC.SPL.csproj" />
   </ItemGroup>
 
 </Project>
