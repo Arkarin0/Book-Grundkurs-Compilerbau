@@ -5,8 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Arkarin0.CodeAnalysis
 {
+    [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
     public abstract class GreenNode
     {
         private string GetDebuggerDisplay()
@@ -19,6 +22,12 @@ namespace Arkarin0.CodeAnalysis
         private readonly ushort _kind;
         private byte _slotCount;
         private int _fullWidth;
+        private NodeFlags flags;
+
+        private readonly static Dictionary<GreenNode, DiagnosticInfo[]> s_diagnosticsTable = 
+            new Dictionary<GreenNode, DiagnosticInfo[]>();
+
+        private readonly static DiagnosticInfo[] s_noDiagnostics= Array.Empty<DiagnosticInfo>();
 
 
         protected GreenNode(ushort kind)
@@ -32,13 +41,48 @@ namespace Arkarin0.CodeAnalysis
             _fullWidth = fullWidth;
         }
 
-        #region Kind 
+        protected GreenNode(ushort kind, DiagnosticInfo[]? diagnostics, int fullWidth)
+        {
+            _kind = kind;
+            _fullWidth = fullWidth;
+            if (diagnostics?.Length > 0)
+            {
+                this.flags |= NodeFlags.ContainsDiagnostics;
+                s_diagnosticsTable.Add(this, diagnostics);
+            }
+        }
 
-        public abstract string Language { get; }
+        protected GreenNode(ushort kind, DiagnosticInfo[]? diagnostics)
+        {
+            _kind = kind;
+            if (diagnostics?.Length > 0)
+            {
+                this.flags |= NodeFlags.ContainsDiagnostics;
+                s_diagnosticsTable.Add(this, diagnostics);
+            }
+        }
+
+        #region Kind         
+        /// <summary>
+        /// Gets the kind represented as an integer
+        /// </summary>        
         public int RawKind
         {
             get { return _kind; }
         }
+
+       
+
+        /// <summary>
+        /// Gets the language this token is designed for.
+        /// </summary>        
+        public abstract string Language { get; }
+
+        /// <summary>
+        /// Gets the kind text.
+        /// </summary>
+        public abstract string KindText { get; }
+
 
         public bool IsList
         {
@@ -48,137 +92,168 @@ namespace Arkarin0.CodeAnalysis
             }
         }
 
-        public abstract string KindText { get; }
 
-        public virtual bool IsStructuredTrivia => false;
-        public virtual bool IsDirective => false;
+
+        
+
+       
         public virtual bool IsToken => false;
         public virtual bool IsTrivia => false;
-        public virtual bool IsSkippedTokensTrivia => false;
-        public virtual bool IsDocumentationCommentTrivia => false;
-
+       
         #endregion
 
-        #region Slots 
-        public int SlotCount
+        #region Spans
+        /// <summary>
+        /// Gets the text full width.
+        /// </summary>        
+        public int FullWidth { get { return _fullWidth; } protected set { _fullWidth = value; } }
+
+        /// <summary>
+        /// Gets the width.
+        /// </summary>
+        public virtual int Width { get { return _fullWidth; } }
+        #endregion
+
+        #region Flags
+        [Flags]
+        public enum NodeFlags : byte
+        {
+            /// <summary>
+            /// No Flag is set.
+            /// </summary>
+            None = 0,
+
+            /// <summary>
+            /// The node contains diagnostical info.
+            /// </summary>
+            ContainsDiagnostics = 1 << 0,
+            /// <summary>
+            /// The node is not missed in the Syntaxtree.
+            /// </summary>
+            IsNotMissing = 1 << 1,
+
+            /// <summary>
+            /// Set all possible flags.
+            /// </summary>
+            InheritMask = ContainsDiagnostics | IsNotMissing,
+        }
+
+        /// <summary>
+        /// Gets the currently set flags.
+        /// </summary>
+        public NodeFlags Flags
+        {
+            get { return this.flags; }
+        }
+
+        /// <summary>
+        /// Sets the flags.
+        /// </summary>
+        /// <param name="flags">The flags.</param>
+        internal protected void SetFlags(NodeFlags flags)
+        {
+            this.flags |= flags;
+        }
+
+        /// <summary>
+        /// Clears the flags.
+        /// </summary>
+        /// <param name="flags">The flags.</param>
+        internal protected void ClearFlags(NodeFlags flags)
+        {
+            this.flags &= ~flags;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this token is missed.
+        /// </summary>
+        /// <value>
+        ///   <see langword="true"/> if this token is missed; otherwise, <see langword="true"/>.        ///   
+        /// </value>
+        public bool IsMissing
         {
             get
             {
-                int count = _slotCount;
-                if (count == byte.MaxValue)
-                {
-                    count = GetSlotCount();
-                }
-
-                return count;
-            }
-
-            protected set
-            {
-                _slotCount = (byte)value;
+                // flag has reversed meaning hence "=="
+                return (this.flags & NodeFlags.IsNotMissing) == 0;
             }
         }
 
-        public abstract GreenNode? GetSlot(int index);
-
-        //internal GreenNode GetRequiredSlot(int index)
-        //{
-        //    var node = GetSlot(index);
-        //    RoslynDebug.Assert(node is object);
-        //    return node;
-        //}
-
-        // for slot counts >= byte.MaxValue
-        protected virtual int GetSlotCount()
+        /// <summary>
+        /// Gets a value indicating whether this token contains diagnostics.
+        /// </summary>
+        /// <value>
+        ///   <see langword="true" /> if this token contains diagnostics; otherwise, <see langword="false" />.
+        /// </value>
+        public bool ContainsDiagnostics
         {
-            return _slotCount;
+            get
+            {
+                return (this.flags & NodeFlags.ContainsDiagnostics) != 0;
+            }
+        }
+        #endregion
+
+        #region Diagnostics
+        public DiagnosticInfo[] GetDiagnostics()
+        {
+            if (this.ContainsDiagnostics)
+            {
+                DiagnosticInfo[]? diags;
+                if (s_diagnosticsTable.TryGetValue(this, out diags))
+                {
+                    return diags;
+                }
+            }
+
+            return s_noDiagnostics;
         }
 
-        //public virtual int GetSlotOffset(int index)
-        //{
-        //    int offset = 0;
-        //    for (int i = 0; i < index; i++)
-        //    {
-        //        var child = this.GetSlot(i);
-        //        if (child != null)
-        //        {
-        //            offset += child.FullWidth;
-        //        }
-        //    }
-
-        //    return offset;
-        //}
-
-        //internal Syntax.InternalSyntax.ChildSyntaxList ChildNodesAndTokens()
-        //{
-        //    return new Syntax.InternalSyntax.ChildSyntaxList(this);
-        //}
+        public abstract GreenNode SetDiagnostics(DiagnosticInfo[]? diagnostics);
 
         /// <summary>
-        /// Enumerates all nodes of the tree rooted by this node (including this node).
+        /// Add an error to the given node, creating a new node that is the same except it has no parent,
+        /// and has the given error attached to it. The error span is the entire span of this node.
         /// </summary>
-        //internal IEnumerable<GreenNode> EnumerateNodes()
-        //{
-        //    yield return this;
+        /// <param name="err">The error to attach to this node</param>
+        /// <returns>A new node, with no parent, that has this error added to it.</returns>
+        /// <remarks>Since nodes are immutable, the only way to create nodes with errors attached is to create a node without an error,
+        /// then add an error with this method to create another node.</remarks>
+        public GreenNode AddError(DiagnosticInfo err)
+        {
+            DiagnosticInfo[] errorInfos;
 
-        //    var stack = new Stack<Syntax.InternalSyntax.ChildSyntaxList.Enumerator>(24);
-        //    stack.Push(this.ChildNodesAndTokens().GetEnumerator());
+            // If the green node already has errors, add those on.
+            if (GetDiagnostics() == null)
+            {
+                errorInfos = new[] { err };
+            }
+            else
+            {
+                // Add the error to the error list.
+                errorInfos = GetDiagnostics();
+                var length = errorInfos.Length;
+                Array.Resize(ref errorInfos, length + 1);
+                errorInfos[length] = err;
+            }
 
-        //    while (stack.Count > 0)
-        //    {
-        //        var en = stack.Pop();
-        //        if (!en.MoveNext())
-        //        {
-        //            // no more down this branch
-        //            continue;
-        //        }
+            // Get a new green node with the errors added on.
+            return SetDiagnostics(errorInfos);
+        }
+        #endregion
 
-        //        var current = en.Current;
-        //        stack.Push(en); // put it back on stack (struct enumerator)
-
-        //        yield return current;
-
-        //        if (!current.IsToken)
-        //        {
-        //            // not token, so consider children
-        //            stack.Push(current.ChildNodesAndTokens().GetEnumerator());
-        //            continue;
-        //        }
-        //    }
-        //}
+        #region Tokens        
+        /// <summary>
+        /// Gets the value this token represents.
+        /// </summary>
+        /// <returns>The value this token represents</returns>
+        public virtual object? GetValue() { return null; }
 
         /// <summary>
-        /// Find the slot that contains the given offset.
+        /// Gets the textual representation of <see cref="GetValue"/>.
         /// </summary>
-        /// <param name="offset">The target offset. Must be between 0 and <see cref="FullWidth"/>.</param>
-        /// <returns>The slot index of the slot containing the given offset.</returns>
-        /// <remarks>
-        /// The base implementation is a linear search. This should be overridden
-        /// if a derived class can implement it more efficiently.
-        /// </remarks>
-        //public virtual int FindSlotIndexContainingOffset(int offset)
-        //{
-        //    Debug.Assert(0 <= offset && offset < FullWidth);
-
-        //    int i;
-        //    int accumulatedWidth = 0;
-        //    for (i = 0; ; i++)
-        //    {
-        //        Debug.Assert(i < SlotCount);
-        //        var child = GetSlot(i);
-        //        if (child != null)
-        //        {
-        //            accumulatedWidth += child.FullWidth;
-        //            if (offset < accumulatedWidth)
-        //            {
-        //                break;
-        //            }
-        //        }
-        //    }
-
-        //    return i;
-        //}
-
+        /// <returns></returns>
+        public virtual string GetValueText() { return string.Empty; }
         #endregion
     }
 }
