@@ -15,13 +15,18 @@ namespace Arkarin0.CodeAnalysis.Syntax
             return this.GetType().Name + " " + this.KindText + " " + this.ToString();
         }
 
+        /// <inheritdoc/>
         protected CustomSyntaxNode(ushort kind) : base(kind) { }
 
+        /// <inheritdoc/>
         protected CustomSyntaxNode(ushort kind, int fullWidth) : base(kind, fullWidth) { }
 
+        /// <inheritdoc/>
         protected CustomSyntaxNode(ushort kind, DiagnosticInfo[] diagnostics) : base(kind, diagnostics)
         {
         }
+
+        /// <inheritdoc/>
         protected CustomSyntaxNode(ushort kind, DiagnosticInfo[] diagnostics, int fullWidth) : base(kind, diagnostics, fullWidth)
         {
         }

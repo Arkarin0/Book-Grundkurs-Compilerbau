@@ -29,18 +29,32 @@ namespace Arkarin0.CodeAnalysis
 
         private readonly static DiagnosticInfo[] s_noDiagnostics= Array.Empty<DiagnosticInfo>();
 
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GreenNode"/> class.
+        /// </summary>
+        /// <param name="kind">The kind.</param>
         protected GreenNode(ushort kind)
         {
             _kind = kind;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GreenNode"/> class.
+        /// </summary>
+        /// <param name="kind">The kind.</param>
+        /// <param name="fullWidth">The full width.</param>
         protected GreenNode(ushort kind, int fullWidth)
         {
             _kind = kind;
             _fullWidth = fullWidth;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GreenNode"/> class.
+        /// </summary>
+        /// <param name="kind">The kind.</param>
+        /// <param name="diagnostics">The diagnostics.</param>
+        /// <param name="fullWidth">The full width.</param>
         protected GreenNode(ushort kind, DiagnosticInfo[]? diagnostics, int fullWidth)
         {
             _kind = kind;
@@ -52,6 +66,11 @@ namespace Arkarin0.CodeAnalysis
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GreenNode"/> class.
+        /// </summary>
+        /// <param name="kind">The kind.</param>
+        /// <param name="diagnostics">The diagnostics.</param>
         protected GreenNode(ushort kind, DiagnosticInfo[]? diagnostics)
         {
             _kind = kind;
