@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Arkarin0.CodeAnalysis
 {
-    [DebuggerDisplay("{GetDebuggerDisplay(), nq}")]
+    [DebuggerDisplay("{" + nameof(GetDebuggerDisplay) + "(),nq}")]
     public abstract class GreenNode
     {
         private string GetDebuggerDisplay()
