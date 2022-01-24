@@ -94,21 +94,18 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 
         public SyntaxToken(SyntaxKind kind): base(kind)
         {
-
+            FullWidth = Text.Length;
+            this.flags |= NodeFlags.IsNotMissing;
         }
 
-        public SyntaxToken(SyntaxKind kind, int fullWidth) : base(kind, fullWidth)
-        {
-        }
 
         public SyntaxToken(SyntaxKind kind, DiagnosticInfo[] diagnostics) : base(kind, diagnostics)
         {
+            FullWidth = Text.Length;
+            this.flags |= NodeFlags.IsNotMissing;
         }
 
-        public SyntaxToken(SyntaxKind kind, DiagnosticInfo[] diagnostics, int fullWidth) : base(kind, diagnostics, fullWidth)
-        {
-        }
-
+        
         /// <inheritdoc cref="ToString"/>        
         public virtual string Text
         {

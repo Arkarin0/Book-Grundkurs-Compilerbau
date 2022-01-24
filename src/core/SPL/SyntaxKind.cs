@@ -76,80 +76,9 @@ namespace BGC.CodeAnalysis.SPL
         HashToken = 8220,
         /// <summary>Represents <c>/</c> token.</summary>
         SlashToken = 8221,
-        /// <summary>Represents <c>..</c> token.</summary>
-        DotDotToken = 8222,
 
-        // additional xml tokens
-        /// <summary>Represents <c>/&gt;</c> token.</summary>
-        SlashGreaterThanToken = 8232, // xml empty element end
-        /// <summary>Represents <c>&lt;/</c> token.</summary>
-        LessThanSlashToken = 8233, // element end tag start token
-        /// <summary>Represents <c>&lt;!--</c> token.</summary>
-        XmlCommentStartToken = 8234, // <!--
-        /// <summary>Represents <c>--&gt;</c> token.</summary>
-        XmlCommentEndToken = 8235, // -->
-        /// <summary>Represents <c>&lt;![CDATA[</c> token.</summary>
-        XmlCDataStartToken = 8236, // <![CDATA[
-        /// <summary>Represents <c>]]&gt;</c> token.</summary>
-        XmlCDataEndToken = 8237, // ]]>
-        /// <summary>Represents <c>&lt;?</c> token.</summary>
-        XmlProcessingInstructionStartToken = 8238, // <?
-        /// <summary>Represents <c>?&gt;</c> token.</summary>
-        XmlProcessingInstructionEndToken = 8239, // ?>
 
-        // compound punctuation
-        /// <summary>Represents <c>||</c> token.</summary>
-        BarBarToken = 8260,
-        /// <summary>Represents <c>&amp;&amp;</c> token.</summary>
-        AmpersandAmpersandToken = 8261,
-        /// <summary>Represents <c>--</c> token.</summary>
-        MinusMinusToken = 8262,
-        /// <summary>Represents <c>++</c> token.</summary>
-        PlusPlusToken = 8263,
-        /// <summary>Represents <c>::</c> token.</summary>
-        ColonColonToken = 8264,
-        /// <summary>Represents <c>??</c> token.</summary>
-        QuestionQuestionToken = 8265,
-        /// <summary>Represents <c>-&gt;</c> token.</summary>
-        MinusGreaterThanToken = 8266,
-        /// <summary>Represents <c>!=</c> token.</summary>
-        ExclamationEqualsToken = 8267,
-        /// <summary>Represents <c>==</c> token.</summary>
-        EqualsEqualsToken = 8268,
-        /// <summary>Represents <c>=&gt;</c> token.</summary>
-        EqualsGreaterThanToken = 8269,
-        /// <summary>Represents <c>&lt;=</c> token.</summary>
-        LessThanEqualsToken = 8270,
-        /// <summary>Represents <c>&lt;&lt;</c> token.</summary>
-        LessThanLessThanToken = 8271,
-        /// <summary>Represents <c>&lt;&lt;=</c> token.</summary>
-        LessThanLessThanEqualsToken = 8272,
-        /// <summary>Represents <c>&gt;=</c> token.</summary>
-        GreaterThanEqualsToken = 8273,
-        /// <summary>Represents <c>&gt;&gt;</c> token.</summary>
-        GreaterThanGreaterThanToken = 8274,
-        /// <summary>Represents <c>&gt;&gt;=</c> token.</summary>
-        GreaterThanGreaterThanEqualsToken = 8275,
-        /// <summary>Represents <c>/=</c> token.</summary>
-        SlashEqualsToken = 8276,
-        /// <summary>Represents <c>*=</c> token.</summary>
-        AsteriskEqualsToken = 8277,
-        /// <summary>Represents <c>|=</c> token.</summary>
-        BarEqualsToken = 8278,
-        /// <summary>Represents <c>&amp;=</c> token.</summary>
-        AmpersandEqualsToken = 8279,
-        /// <summary>Represents <c>+=</c> token.</summary>
-        PlusEqualsToken = 8280,
-        /// <summary>Represents <c>-=</c> token.</summary>
-        MinusEqualsToken = 8281,
-        /// <summary>Represents <c>^=</c> token.</summary>
-        CaretEqualsToken = 8282,
-        /// <summary>Represents <c>%=</c> token.</summary>
-        PercentEqualsToken = 8283,
-        /// <summary>Represents <c>??=</c> token.</summary>
-        QuestionQuestionEqualsToken = 8284,
-        /// <summary>Represents <c>!!</c> token.</summary>
-        ExclamationExclamationToken = 8285,
+        
 
         //keywords
         //8300 to 8500

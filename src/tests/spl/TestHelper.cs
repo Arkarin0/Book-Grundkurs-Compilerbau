@@ -4,6 +4,7 @@ using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
@@ -12,6 +13,16 @@ namespace BGC.SPL
 {
     static internal partial class TestHelper
     {
+#nullable enable
+        private static T CreateInstance<T>(params object?[]? args)
+#nullable disable
+        {
+            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            
+            return (T)Activator.CreateInstance(typeof(T),flags, binder:null,args, culture:null);
+        }
+
+
         public static T AssertSetDiagnostics<T>(T node) where T : GreenNode
         {
             var obj = node;
@@ -31,49 +42,78 @@ namespace BGC.SPL
 
         public static T AssertCTor<T>() where T : SPLSyntaxNode
         {
-            SyntaxKind kind = SyntaxKind.OfKeyword;
-            var obj = (T)Activator.CreateInstance(typeof(T),kind);
-            Assert.Equal(kind, obj.Kind);
+            bool isMissingToken = typeof(T).IsAssignableTo(typeof(SyntaxToken.MissingTokenWithTrivia));
+            bool isSyntaxToken = typeof(T).IsAssignableFrom(typeof(SyntaxToken));
 
-            kind = SyntaxKind.SemicolonToken;
-            int length = 12;
-            obj = (T)Activator.CreateInstance(typeof(T), kind, length);
+            SyntaxKind kind = SyntaxKind.OfKeyword;
+            var obj = CreateInstance<T>(kind);
             Assert.Equal(kind, obj.Kind);
-            Assert.Equal(length, obj.FullWidth);
+            if (isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
+
+            bool hasWidth = !isSyntaxToken;
+            if (hasWidth)
+            {
+                kind = SyntaxKind.SemicolonToken;
+                int length = 12;
+                obj = CreateInstance<T>(kind, length);
+                Assert.Equal(kind, obj.Kind);
+                Assert.Equal(length, obj.FullWidth);
+            }
 
             return obj;
         }
 
         public static T AssertCTorWithDiagnostics<T>() where T : SPLSyntaxNode
         {
+            bool isMissingToken = typeof(T).IsAssignableTo(typeof(SyntaxToken.MissingTokenWithTrivia));
+            bool isSyntaxToken= typeof(T).IsAssignableTo(typeof(SyntaxToken));
+
             SyntaxKind kind = SyntaxKind.OfKeyword;
             DiagnosticInfo[] nullDiagnostics = Array.Empty<DiagnosticInfo>();
-            var obj = (T)Activator.CreateInstance(typeof(T), kind, nullDiagnostics);
+            var obj = CreateInstance<T>(kind, nullDiagnostics);
             Assert.Equal(kind, obj.Kind);
-            Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
+            if(isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
 
             kind = SyntaxKind.OpenBracketToken;
-            obj = (T)Activator.CreateInstance(typeof(T), kind, new DiagnosticInfo[] { new DiagnosticInfo(10) });
+            obj = CreateInstance<T>(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) });
             Assert.Equal(kind, obj.Kind);
-            Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            AssertAreFlagsSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
+            if (isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
 
+            bool hasWidth = !isSyntaxToken;
+            if (hasWidth)
+            {
+                kind = SyntaxKind.OpenParenToken;
+                int length = 12;
+                obj = CreateInstance<T>(kind, nullDiagnostics, length);
+                Assert.Equal(kind, obj.Kind);
+                Assert.Equal(length, obj.FullWidth);
+                Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
 
-
-            kind = SyntaxKind.OpenParenToken;
-            int length = 12;
-            obj = (T)Activator.CreateInstance(typeof(T), kind, nullDiagnostics, length);
-            Assert.Equal(kind, obj.Kind);
-            Assert.Equal(length, obj.FullWidth);
-            Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
-
-            kind = SyntaxKind.PlusToken;
-            length = 13;
-            obj = (T)Activator.CreateInstance(typeof(T), kind, new DiagnosticInfo[] { new DiagnosticInfo(10) }, length);
-            Assert.Equal(kind, obj.Kind);
-            Assert.Equal(length, obj.FullWidth);
-            Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+                kind = SyntaxKind.PlusToken;
+                length = 13;
+                obj = CreateInstance<T>(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) }, length);
+                Assert.Equal(kind, obj.Kind);
+                Assert.Equal(length, obj.FullWidth);
+                Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            }
 
             return obj;
+        }
+
+        public static void AssertAreFlagsSet(GreenNode node, GreenNode.NodeFlags flags)
+        {
+            var actual = node.Flags.HasFlag(flags);
+            Assert.True(actual, $"The {flags}-flag(s) are not set.");
+        }
+        public static void AssertAreFlagsNotSet(GreenNode node, GreenNode.NodeFlags flags)
+        {
+            var actual = !node.Flags.HasFlag(flags);
+            Assert.True(actual, $"The {flags}-flag(s) are set.");
         }
     }
 }

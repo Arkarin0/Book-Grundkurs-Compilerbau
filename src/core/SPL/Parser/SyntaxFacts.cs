@@ -117,7 +117,7 @@ namespace BGC.CodeAnalysis.SPL
                 case SyntaxKind.SlashToken:
                     return "/";
                 default:
-                    throw new NotImplementedException($"The {kind}-syntaxkind is not implemented.");
+                    return String.Empty;
             }
         }
     }

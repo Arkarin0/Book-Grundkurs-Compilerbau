@@ -22,7 +22,7 @@ namespace Arkarin0.CodeAnalysis
         private readonly ushort _kind;
         private byte _slotCount;
         private int _fullWidth;
-        private NodeFlags flags;
+        protected NodeFlags flags;
 
         private readonly static Dictionary<GreenNode, DiagnosticInfo[]> s_diagnosticsTable = 
             new Dictionary<GreenNode, DiagnosticInfo[]>();
