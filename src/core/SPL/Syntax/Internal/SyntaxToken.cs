@@ -28,7 +28,8 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
                     throw new ArgumentException($"This methode can only be used to create Tokens based on {typeof(SyntaxKind)}", nameof(kind));
                 }
 
-                //return CreateMissing(kind, null, null);
+                return CreateMissing(kind, null, null);
+
             }
 
             return s_tokensWithNoTrivia[(int)kind].Value;
@@ -66,10 +67,12 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
         //    return new SyntaxTokenWithTrivia(kind, leading, trailing);
         //}
 
-        //internal static SyntaxToken CreateMissing(SyntaxKind kind, GreenNode leading, GreenNode trailing)
-        //{
-        //    return new MissingTokenWithTrivia(kind, leading, trailing);
-        //}
+        internal static SyntaxToken CreateMissing(SyntaxKind kind, GreenNode leading, GreenNode trailing)
+        {
+            return new MissingTokenWithTrivia(kind/*, leading, trailing*/);
+        }
+
+
 
         internal const SyntaxKind FirstTokenWithWellKnownText = SyntaxKind.TildeToken;
         internal const SyntaxKind LastTokenWithWellKnownText = SyntaxKind.EndOfFileToken;

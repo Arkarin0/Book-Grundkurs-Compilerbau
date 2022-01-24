@@ -75,5 +75,33 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             Assert.Equal(expectedKind, obj.Kind);
         }
 
+        [Theory()]
+        [InlineData(SyntaxKind.IdentifierToken)]
+        public void Create_ReturnsTokenIsMissingTest(SyntaxKind expectedKind)
+        {
+            //any token after EndOfFileToken should result in a MissingToken.
+
+            var obj = SyntaxToken.Create(expectedKind);
+
+            Assert.IsType<SyntaxToken.MissingTokenWithTrivia>(obj);
+            Assert.True(obj.IsMissing);
+            Assert.Equal(expectedKind, obj.Kind);
+        }
+
+        [Theory()]
+        [InlineData(SyntaxKind.AsteriskToken)]
+        [InlineData(SyntaxKind.ElseKeyword)]
+        public void FullWidthTest(SyntaxKind expectedKind)
+        {
+            var expectedText = SyntaxFacts.GetText(expectedKind);
+            var expectedwidth = expectedText.Length;
+
+            var obj = SyntaxToken.Create(expectedKind);
+            
+            Assert.NotEmpty(obj.Text);
+            Assert.Equal(expectedText, obj.Text);
+            Assert.Equal(expectedwidth, obj.FullWidth);
+        }
+
     }
 }

@@ -116,6 +116,9 @@ namespace BGC.CodeAnalysis.SPL
                     return "#";
                 case SyntaxKind.SlashToken:
                     return "/";
+
+                case SyntaxKind.ElseKeyword:
+                    return "else";
                 default:
                     return String.Empty;
             }
