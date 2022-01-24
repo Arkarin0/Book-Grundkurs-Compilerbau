@@ -34,7 +34,7 @@ namespace Arkarin0.CodeAnalysis.Tests
 
             public override CodeAnalysis.GreenNode SetDiagnostics(DiagnosticInfo[] diagnostics)
             {
-                throw new NotImplementedException();
+                return new GreenNode((ushort)this.RawKind, diagnostics);
             }
         }
 
@@ -167,16 +167,44 @@ namespace Arkarin0.CodeAnalysis.Tests
             Assert.Equal(expected, actual);
         }
 
-        [Fact(Skip = "is dependent on an abstract implementation.")]
+        [Fact()]
         public void SetDiagnosticsTest()
         {
-            Assert.True(false, "This test needs an implementation");
+            var obj = new GreenNode(10);
+            var diagnostic = new DiagnosticInfo(10);
+
+            Assert.Empty(obj.GetDiagnostics());
+
+            obj = (GreenNode)obj.SetDiagnostics(new[] { diagnostic });
+
+            Assert.Contains(diagnostic, obj.GetDiagnostics());
         }
 
-        [Fact(Skip = "is dependent on an abstract implementation.")]
-        public void AddErrorTest()
+        [Fact()]
+        public void AddError_WhenNoErrorsExistsTest()
         {
-            Assert.True(false, "This test needs an implementation");
+            var obj = new GreenNode(10);
+            var diagnostic = new DiagnosticInfo(10);
+
+            Assert.Empty(obj.GetDiagnostics());
+
+            obj = (GreenNode)obj.AddError(diagnostic);
+
+            Assert.Contains(diagnostic, obj.GetDiagnostics());
+        }
+
+        [Fact()]
+        public void AddError_WhenOtherErrorsExistsTest()
+        {
+            var diagnostics = new[] {new  DiagnosticInfo(1), new DiagnosticInfo(2) };
+            var obj = new GreenNode(10, diagnostics);
+            var diagnostic = new DiagnosticInfo(10);
+
+            Assert.Equal(diagnostics, obj.GetDiagnostics());
+
+            obj = (GreenNode)obj.AddError(diagnostic);
+
+            Assert.Contains(diagnostic, obj.GetDiagnostics());
         }
 
         [Fact()]
