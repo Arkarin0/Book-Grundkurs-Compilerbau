@@ -74,12 +74,13 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
 
 
 
-        internal const SyntaxKind FirstTokenWithWellKnownText = SyntaxKind.TildeToken;
+        internal const SyntaxKind FirstTokenWithWellKnownText = SyntaxKind.PlusToken;
         internal const SyntaxKind LastTokenWithWellKnownText = SyntaxKind.EndOfFileToken;
 
         private static readonly ArrayElement<SyntaxToken>[] s_tokensWithNoTrivia = new ArrayElement<SyntaxToken>[(int)LastTokenWithWellKnownText + 1];
         private static readonly ArrayElement<SyntaxToken>[] s_tokensWithSingleTrailingSpace = new ArrayElement<SyntaxToken>[(int)LastTokenWithWellKnownText + 1];
         private static readonly ArrayElement<SyntaxToken>[] s_tokensWithSingleTrailingCRLF = new ArrayElement<SyntaxToken>[(int)LastTokenWithWellKnownText + 1];
+        private static readonly SyntaxKind[] s_WellKnownTokenKinds = Array.Empty<SyntaxKind>();
 
         static SyntaxToken()
         {
@@ -93,6 +94,11 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
                 //s_tokensWithSingleTrailingSpace[(int)kind].Value = new SyntaxTokenWithTrivia(kind, null, SyntaxFactory.Space);
                 //s_tokensWithSingleTrailingCRLF[(int)kind].Value = new SyntaxTokenWithTrivia(kind, null, SyntaxFactory.CarriageReturnLineFeed);
             }
+
+            List<SyntaxKind> syntaxKinds = new List<SyntaxKind>();
+            foreach (SyntaxKind item in Enum.GetValues(typeof(SyntaxKind)))
+                if (SyntaxFacts.IsAnyToken(item)) syntaxKinds.Add(item);
+            s_WellKnownTokenKinds = syntaxKinds.ToArray();
         }
 
         public SyntaxToken(SyntaxKind kind): base(kind)
@@ -147,6 +153,11 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
                         return this.Text;
                 }
             }
+        }
+
+        public static IEnumerable<SyntaxKind> GetWellKnownTokenKinds()
+        {
+            return s_WellKnownTokenKinds;
         }
     }
 }

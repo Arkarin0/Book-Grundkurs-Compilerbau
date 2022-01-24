@@ -112,7 +112,7 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
 
         [Theory]
         [InlineData(SyntaxKind.EndOfLineTrivia)]
-        [InlineData(SyntaxKind.AmpersandToken)]
+        [InlineData(SyntaxKind.PlusToken)]
         [InlineData(SyntaxKind.OfKeyword)]
         public void KindTest(SyntaxKind expected)
         {            
