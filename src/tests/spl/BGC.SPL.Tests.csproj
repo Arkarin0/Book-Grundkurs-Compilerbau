@@ -22,4 +22,8 @@
     <ProjectReference Include="..\..\core\SPL\BGC.SPL.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Syntax\InternalSyntax\" />
+  </ItemGroup>
+
 </Project>

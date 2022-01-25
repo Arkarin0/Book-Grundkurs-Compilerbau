@@ -87,17 +87,15 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             //ObjectBinder.RegisterTypeReader(typeof(SyntaxToken), r => new SyntaxToken(r));
 
             //prebuild wellknown Tokens
+            List<SyntaxKind> syntaxKinds = new List<SyntaxKind>();
             for (var kind = FirstTokenWithWellKnownText; kind <= LastTokenWithWellKnownText; kind++)
             {
                 s_tokensWithNoTrivia[(int)kind].Value = new SyntaxToken(kind);
+                syntaxKinds.Add(kind);
 
                 //s_tokensWithSingleTrailingSpace[(int)kind].Value = new SyntaxTokenWithTrivia(kind, null, SyntaxFactory.Space);
                 //s_tokensWithSingleTrailingCRLF[(int)kind].Value = new SyntaxTokenWithTrivia(kind, null, SyntaxFactory.CarriageReturnLineFeed);
             }
-
-            List<SyntaxKind> syntaxKinds = new List<SyntaxKind>();
-            foreach (SyntaxKind item in Enum.GetValues(typeof(SyntaxKind)))
-                if (SyntaxFacts.IsAnyToken(item)) syntaxKinds.Add(item);
             s_WellKnownTokenKinds = syntaxKinds.ToArray();
         }
 
@@ -158,6 +156,34 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
         public static IEnumerable<SyntaxKind> GetWellKnownTokenKinds()
         {
             return s_WellKnownTokenKinds;
+        }
+
+        internal static IEnumerable<SyntaxToken> GetWellKnownTokens()
+        {
+            foreach (var element in s_tokensWithNoTrivia)
+            {
+                if (element.Value != null)
+                {
+                    yield return element.Value;
+                }
+            }
+
+
+            foreach (var element in s_tokensWithSingleTrailingSpace)
+            {
+                if (element.Value != null)
+                {
+                    yield return element.Value;
+                }
+            }
+
+            foreach (var element in s_tokensWithSingleTrailingCRLF)
+            {
+                if (element.Value != null)
+                {
+                    yield return element.Value;
+                }
+            }
         }
     }
 }
