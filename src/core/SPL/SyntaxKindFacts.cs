@@ -33,10 +33,19 @@ namespace BGC.CodeAnalysis.SPL
                 || ch == '\u2029';
         }
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a punctuation.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a punctuation; else <see langword="false"/>.</returns>
         public static bool IsPunctuation(SyntaxKind kind)
         {
             return kind >= SyntaxKind.PlusToken && kind <= SyntaxKind.GreaterThenEqualToken;
         }
+
+        /// <summary>
+        /// Get all <see cref="SyntaxKind"/>s which are a punctuation.
+        /// </summary>
         public static IEnumerable<SyntaxKind> GetPunctuationKinds()
         {
             for (int i = (int)SyntaxKind.PlusToken; i <= (int)SyntaxKind.GreaterThenEqualToken; i++)
@@ -45,10 +54,19 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a keyword.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a keyword; else <see langword="false"/>.</returns>
         public static bool IsKeyword(SyntaxKind kind)
         {
             return kind >= SyntaxKind.ArrayKeyword && kind <= SyntaxKind.IntKeyword;            
         }
+
+        /// <summary>
+        /// Get all <see cref="SyntaxKind"/>s which are keywords.
+        /// </summary>
         public static IEnumerable<SyntaxKind> GetKeywordKinds()
         {
             for (int i = (int)SyntaxKind.ArrayKeyword; i <= (int)SyntaxKind.IntKeyword; i++)
@@ -57,11 +75,21 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a punctuation or keyword.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a punctuation or keyword; else <see langword="false"/>.</returns>
         public static bool IsPunctuationOrKeyword(SyntaxKind kind)
         {
             return kind >= SyntaxToken.FirstTokenWithWellKnownText && kind <= SyntaxToken.LastTokenWithWellKnownText;
         }
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a literal token.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a literal token; else <see langword="false"/>.</returns>
         internal static bool IsLiteral(SyntaxKind kind)
         {
             switch (kind)
@@ -75,6 +103,11 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a token.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a token; else <see langword="false"/>.</returns>
         public static bool IsAnyToken(SyntaxKind kind)
         {
             if (kind >= FirstTokenKind && kind < LastTokenKind) return true;
@@ -115,6 +148,11 @@ namespace BGC.CodeAnalysis.SPL
         //    }
         //}
 
+        /// <summary>
+        /// Determine if a given <see cref="SyntaxKind"/> is a predfined type.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to check.</param>
+        /// <returns><see langword="true"/> when <paramref name="kind"/> is a predefined type; else <see langword="false"/>.</returns>
         public static bool IsPredefinedType(SyntaxKind kind)
         {
             switch (kind)
@@ -126,8 +164,33 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
+        /// <summary>
+        /// Turn a text into a <c>keyword</c>-<see cref="SyntaxKind"/>.
+        /// </summary>
+        /// <param name="text">The text to convert.</param>
+        /// <returns>Returns a <c>keyword</c>-<see cref="SyntaxKind"/>; else <see cref="SyntaxKind.None"/>.</returns>
+        public static SyntaxKind GetKeywordKind(string text)
+        {
+            switch (text)
+            {
+                case "array": return SyntaxKind.ArrayKeyword;
+                case "if": return SyntaxKind.IfKeyword;
+                case "else": return SyntaxKind.ElseKeyword;
+                case "while": return SyntaxKind.WhileKeyword;
+                case "proc": return SyntaxKind.ProcedureKeyword;
+                case "var": return SyntaxKind.VarKeyword;
+                case "ref": return SyntaxKind.RefKeyword;
+                case "of": return SyntaxKind.OfKeyword;
+                case "int": return SyntaxKind.IntKeyword;
+                default: return SyntaxKind.None;
+            }
+        }
 
-
+        /// <summary>
+        /// Turn a <see cref="SyntaxKind"/> into its <see cref="string"/> representation.
+        /// </summary>
+        /// <param name="kind">The <see cref="SyntaxKind"/> to convert.</param>
+        /// <returns>Returns a <see cref="string"/> if the <paramref name="kind"/> exists; else <see cref="string.Empty"/>.</returns>
         public static string GetText(SyntaxKind kind)
         {
             switch (kind)
@@ -199,8 +262,10 @@ namespace BGC.CodeAnalysis.SPL
                 case SyntaxKind.IntKeyword:
                     return "int";
                 default:
-                    return String.Empty;
+                    return string.Empty;
             }
         }
+
+
     }
 }

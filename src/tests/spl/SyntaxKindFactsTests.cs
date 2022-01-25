@@ -9,7 +9,7 @@ using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 
 namespace BGC.CodeAnalysis.SPL.Tests
 {
-    public class SyntaxFactsTests
+    public class SyntaxKindFactsTests
     {
         private SyntaxKind[] GetKindsFromTo(SyntaxKind from, SyntaxKind to)
         {
