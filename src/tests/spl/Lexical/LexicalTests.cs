@@ -61,11 +61,11 @@ namespace BGC.Core.Lexical.Tests
                     var token = LexToken(text);
 
                     Assert.NotEqual(default, token);
-                    Assert.True(SyntaxFacts.IsKeyword(token.Kind()));
+                    Assert.True(SyntaxFacts.IsKeyword(token.Kind()),$"IsKeyword(): failed\nKeyword:{keyword}\nText:\"{text}\"");
                     Assert.Equal(text, token.Text);
                     var errors = token.Errors();
                     Assert.Equal(0, errors.Length);
-                    //Assert.Equal(text, token.ValueText);//TODO: enable
+                    Assert.Equal(text, token.ValueText);
                 }
             }
         }
@@ -92,7 +92,7 @@ namespace BGC.Core.Lexical.Tests
             TestPunctuation(SyntaxKind.CloseBraceToken);
             TestPunctuation(SyntaxKind.OpenBracketToken);
             TestPunctuation(SyntaxKind.CloseBracketToken);
-            TestPunctuation(SyntaxKind.SingleQuoteToken);// literal Character
+            //TestPunctuation(SyntaxKind.SingleQuoteToken);// literal Character
             TestPunctuation(SyntaxKind.UnderscoreToken);
             
             //compound punctuation
@@ -110,8 +110,7 @@ namespace BGC.Core.Lexical.Tests
             Assert.Equal(text, token.Text);
             var errors = token.Errors();
             Assert.Equal(0, errors.Length);
-            //TODO: enable
-            //Assert.Equal(text, token.ValueText);
+            Assert.Equal(text, token.ValueText);
         }
 
         //[Fact]

@@ -153,6 +153,24 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             }
         }
 
+        /// <inheritdoc/>
+        public virtual string ValueText
+        {
+            get { return this.Text; }
+        }
+
+        /// <inheritdoc/>
+        public override object GetValue()
+        {
+            return this.Value;
+        }
+
+        /// <inheritdoc/>
+        public override string GetValueText()
+        {
+            return this.ValueText;
+        }
+
         public static IEnumerable<SyntaxKind> GetWellKnownTokenKinds()
         {
             return s_WellKnownTokenKinds;

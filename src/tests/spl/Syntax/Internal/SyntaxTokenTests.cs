@@ -47,7 +47,19 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             var obj = CreateValidInstance(SyntaxKind.AsteriskToken);
 
             Assert.Equal(expected, obj.Value);
+            Assert.Equal(expected, obj.GetValue());
         }
+
+        [Fact()]
+        public void ValueTextTest()
+        {
+            var expected = "*";
+            var obj = CreateValidInstance(SyntaxKind.AsteriskToken);
+
+            Assert.Equal(expected, obj.ValueText);
+            Assert.Equal(expected, obj.GetValueText());
+        }
+
 
         [Fact()]
         public void TextTest()

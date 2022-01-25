@@ -262,37 +262,48 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
-        private bool ScanIdentifierOrKeyword( ref TokenInfo info)
+        private bool ScanIdentifierOrKeyword(ref TokenInfo info)
         {
-            char character= TextWindow.PeekChar();
-
-            if(ScanIdentifier(ref info))
+            int offset = 0;
+            StringBuilder sb = new StringBuilder();
+            bool exit = false;
+            do
             {
+                //get the actual char into the buffer
+                char character = TextWindow.PeekChar(offset);
+                sb.Append(character);
 
-            }
-            else if (ScanKeyword(ref info))
-            {
-
-            }else
+                //peel next char
+                character = TextWindow.PeekChar(offset + 1);
                 switch (character)
                 {
-                    case '_':
-                        TextWindow.AdvanceChar();
-                        info.Kind = SyntaxKind.UnderscoreToken;
+                    case SlidingTextWindow.InvalidCharacter:
+                        info.Kind = SyntaxKind.EndOfFileToken;
+                        exit = true;
                         break;
-                    default:
-                        throw new NotImplementedException();
+
+                    case ' ':
+                    case '\r':
+                    case '\n':
+                    case '\t':
+                    case '\v':
+                        exit = true;
+                        break;
+
                 }
 
+                offset++;
+            } while (!exit);
+            var text= sb.ToString();
+            var kind = SyntaxFacts.GetKeywordKind(text);
+            if (text == "_") kind = SyntaxKind.UnderscoreToken;
+            else if (kind == SyntaxKind.None) kind = SyntaxKind.IdentifierToken;
+
+            TextWindow.AdvanceChar(offset);
+            info.Text = text;
+            info.Kind = kind;
+
             return true;
-        }
-        private bool ScanIdentifier(ref TokenInfo info)
-        {
-            return false;
-        }
-        private bool ScanKeyword(ref TokenInfo info)
-        {
-            return false;
         }
 
         //        private void LexComment(ref TokenInfo token, SlidingTextWindow reader)
