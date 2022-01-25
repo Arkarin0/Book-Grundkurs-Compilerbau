@@ -92,5 +92,19 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
         public static IEnumerable<SyntaxToken> GetWellKnownTokens() 
             => SyntaxToken.GetWellKnownTokens();
 
+
+        public static IEnumerable<SyntaxToken> ParseTokens(string text)
+        {
+            SyntaxToken token;
+            using (var lexer = new Lexer(Microsoft.CodeAnalysis.Text.SourceText.From(text)))
+            {
+                token = lexer.Lex();
+            }
+
+            if(token == null) return Enumerable.Empty<SyntaxToken>();
+
+            return new SyntaxToken[] { token };
+        }
+
     }
 }
