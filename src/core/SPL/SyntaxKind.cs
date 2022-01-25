@@ -73,19 +73,19 @@ namespace BGC.CodeAnalysis.SPL
         /// <summary>Represents <see langword="if"/>.</summary>
         IfKeyword = 8201,
         /// <summary>Represents <see langword="else"/>.</summary>
-        ElseKeyword = 8203,
+        ElseKeyword = 8202,
         /// <summary>Represents <see langword="while"/>.</summary>
-        WhileKeyword = 8204,
+        WhileKeyword = 8203,
         /// <summary>Represents <see langword="proc"/>.</summary>
-        ProcedureKeyword = 8205,
+        ProcedureKeyword = 8204,
         /// <summary>Represents <see langword="var"/>.</summary>
-        VarKeyword = 8206,
+        VarKeyword = 8205,
         /// <summary>Represents <see langword="ref"/>.</summary>
-        RefKeyword = 8207,
+        RefKeyword = 8206,
         /// <summary>Represents <see langword="of"/>.</summary>
-        OfKeyword = 8208,
+        OfKeyword = 8207,
         /// <summary>Represents <see langword="int"/>.</summary>
-        IntKeyword = 8209,
+        IntKeyword = 8208,
         //
         // Other
         //
