@@ -8,6 +8,7 @@ using System.IO;
 using BGC.CodeAnalysis.SPL;
 using Microsoft.CodeAnalysis.Text;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
+using BGC.SPL;
 
 namespace BGC.CodeAnalysis.SPL.Syntax.Internal.Tests
 {
@@ -48,6 +49,16 @@ namespace BGC.CodeAnalysis.SPL.Syntax.Internal.Tests
             Assert.All(tokens, token => {
                 Assert.Single(actualList, item => item.Kind == token);                
             });
+        }
+
+        [Fact()]
+        public void CreateLiteralUInt32Test()
+        {
+            var kind = SyntaxKind.NumericLiteralToken;
+            var value = 123u;
+            var text = "123";
+            var obj = (SyntaxToken.SyntaxTokenWithValue<uint>)SyntaxFactory.Literal(text, value);
+            TestHelper.AssertTextAndValue(obj,kind, text, value);
         }
     }
 }
