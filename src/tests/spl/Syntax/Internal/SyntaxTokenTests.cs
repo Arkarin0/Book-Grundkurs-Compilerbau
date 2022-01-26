@@ -70,6 +70,21 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             Assert.Equal(expected, obj.Text);
         }
 
+        [Theory()]
+        [InlineData(SyntaxKind.AsteriskToken)]
+        [InlineData(SyntaxKind.ElseKeyword)]
+        public void FullWidthTest(SyntaxKind expectedKind)
+        {
+            var expectedText = SyntaxFacts.GetText(expectedKind);
+            var expectedwidth = expectedText.Length;
+
+            var obj = SyntaxToken.Create(expectedKind);
+
+            Assert.NotEmpty(obj.Text);
+            Assert.Equal(expectedText, obj.Text);
+            Assert.Equal(expectedwidth, obj.FullWidth);
+        }
+
         [Fact()]
         public void SetDiagnosticsTest()
         {
@@ -100,20 +115,19 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             Assert.Equal(expectedKind, obj.Kind);
         }
 
-        [Theory()]
-        [InlineData(SyntaxKind.AsteriskToken)]
-        [InlineData(SyntaxKind.ElseKeyword)]
-        public void FullWidthTest(SyntaxKind expectedKind)
+        [Fact()]
+        public void WithValue_ReturnsTokenTest()
         {
-            var expectedText = SyntaxFacts.GetText(expectedKind);
-            var expectedwidth = expectedText.Length;
-
-            var obj = SyntaxToken.Create(expectedKind);
-            
-            Assert.NotEmpty(obj.Text);
-            Assert.Equal(expectedText, obj.Text);
-            Assert.Equal(expectedwidth, obj.FullWidth);
+            TestCreateTokenWithValue(SyntaxKind.CharacterLiteralToken, "a", (byte)'a');
+            TestCreateTokenWithValue(SyntaxKind.IntKeyword, "123", (UInt32)123);
         }
+        private void TestCreateTokenWithValue<T>(SyntaxKind kind, string text, T value)
+        {
+            var obj = (SyntaxToken.SyntaxTokenWithValue<T>)SyntaxToken.WithValue<T>(kind, text,value);
+            TestHelper.AssertTextAndValue<T>(obj,kind,text,value);
+        }
+
+
 
     }
 }

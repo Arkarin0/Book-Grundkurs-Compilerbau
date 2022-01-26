@@ -114,5 +114,20 @@ namespace BGC.SPL
             var actual = !node.Flags.HasFlag(flags);
             Assert.True(actual, $"The {flags}-flag(s) are set.");
         }
+
+        public static void AssertTextAndValue<T>(SyntaxToken.SyntaxTokenWithValue<T> @object, SyntaxKind kind , string text, T value)
+        {
+            var valueText= Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+
+            Assert.NotNull(@object);
+            Assert.IsType<SyntaxToken.SyntaxTokenWithValue<T>>(@object);
+            Assert.Equal(kind, @object.Kind);
+            Assert.Equal(text, @object.Text);
+            Assert.Equal(value, @object.Value);
+            Assert.Equal(value, @object.GetValue());
+            Assert.IsType<T>(@object.Value);
+            Assert.Equal(valueText, @object.ValueText);
+            Assert.Equal(valueText, @object.GetValueText());
+        }
     }
 }

@@ -72,6 +72,9 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             return new MissingTokenWithTrivia(kind/*, leading, trailing*/);
         }
 
+        internal static SyntaxToken WithValue<T>(SyntaxKind kind, string text, T value)
+            => new SyntaxTokenWithValue<T>(kind, text, value);
+
 
 
         internal const SyntaxKind FirstTokenWithWellKnownText = SyntaxKind.PlusToken;
