@@ -1,4 +1,6 @@
-﻿using Microsoft.CodeAnalysis.Text;
+﻿using Microsoft.CodeAnalysis.PooledObjects;
+using Microsoft.CodeAnalysis.Text;
+using Sonea.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,16 +49,31 @@ namespace Arkarin0.CodeAnalysis
         // The current lexeme started at (basis + lexemeStart), which is <= (basis + offset)
         // The current lexeme is the characters between the lexemeStart and the offset.
 
+        private readonly StringTable _strings;
+
+        private static readonly ObjectPool<char[]> s_windowPool = new ObjectPool<char[]>(() => new char[DefaultWindowLength]);
+
+
         public SlidingTextWindow(SourceText text)
         {
             _text = text;
             _basis = 0;
             _offset = 0;
             _textEnd = text.Length;
-            //_strings = StringTable.GetInstance();
-            //_characterWindow = s_windowPool.Allocate();
+            _strings = StringTable.GetInstance();
+            _characterWindow = s_windowPool.Allocate();
             _characterWindow = new char[_textEnd]; _text.CopyTo(0, _characterWindow, 0, _textEnd);
             _lexemeStart = 0;
+        }
+
+        public void Dispose()
+        {
+            if (_characterWindow != null)
+            {
+                s_windowPool.Free(_characterWindow);
+                _characterWindow = null;
+                _strings.Free();
+            }
         }
 
         /// <summary>
@@ -78,6 +95,29 @@ namespace Arkarin0.CodeAnalysis
             get
             {
                 return _offset;
+            }
+        }
+
+        /// <summary>
+        /// The absolute position of the start of the current lexeme in the given
+        /// SourceText.
+        /// </summary>
+        public int LexemeStartPosition
+        {
+            get
+            {
+                return _basis + _lexemeStart;
+            }
+        }
+
+        /// <summary>
+        /// The number of characters in the current lexeme.
+        /// </summary>
+        public int Width
+        {
+            get
+            {
+                return _offset - _lexemeStart;
             }
         }
 
@@ -240,13 +280,77 @@ namespace Arkarin0.CodeAnalysis
 
 
 
-        public void Dispose()
+
+
+        public string Intern(StringBuilder text)
         {
-            if (_characterWindow != null)
+            return _strings.Add(text);
+        }
+
+        public string Intern(char[] array, int start, int length)
+        {
+            return _strings.Add(array, start, length);
+        }
+
+        public string GetInternedText()
+        {
+            return this.Intern(_characterWindow, _lexemeStart, this.Width);
+        }
+
+        public string GetText(bool intern)
+        {
+            return this.GetText(this.LexemeStartPosition, this.Width, intern);
+        }
+
+        public string GetText(int position, int length, bool intern)
+        {
+            int offset = position - _basis;
+
+            // PERF: Whether interning or not, there are some frequently occurring
+            // easy cases we can pick off easily.
+            switch (length)
             {
-                //s_windowPool.Free(_characterWindow);
-                _characterWindow = null;
-                //_strings.Free();
+                case 0:
+                    return string.Empty;
+
+                case 1:
+                    if (_characterWindow[offset] == ' ')
+                    {
+                        return " ";
+                    }
+                    if (_characterWindow[offset] == '\n')
+                    {
+                        return "\n";
+                    }
+                    break;
+
+                case 2:
+                    char firstChar = _characterWindow[offset];
+                    if (firstChar == '\r' && _characterWindow[offset + 1] == '\n')
+                    {
+                        return "\r\n";
+                    }
+                    if (firstChar == '/' && _characterWindow[offset + 1] == '/')
+                    {
+                        return "//";
+                    }
+                    break;
+
+                case 3:
+                    if (_characterWindow[offset] == '/' && _characterWindow[offset + 1] == '/' && _characterWindow[offset + 2] == ' ')
+                    {
+                        return "// ";
+                    }
+                    break;
+            }
+
+            if (intern)
+            {
+                return this.Intern(_characterWindow, offset, length);
+            }
+            else
+            {
+                return new string(_characterWindow, offset, length);
             }
         }
     }
