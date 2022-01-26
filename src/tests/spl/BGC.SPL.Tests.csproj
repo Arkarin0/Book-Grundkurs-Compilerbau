@@ -3,6 +3,7 @@
   <PropertyGroup>
 
     <IsPackable>false</IsPackable>
+	  <DefineConstants>$(DefineConstants)TRACE;Unittest</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

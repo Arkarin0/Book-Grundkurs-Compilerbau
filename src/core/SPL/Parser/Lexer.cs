@@ -2,9 +2,11 @@
 using Arkarin0.CodeAnalysis.Syntax;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 using Microsoft.CodeAnalysis.Text;
+using Sonea.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,18 +16,28 @@ namespace BGC.CodeAnalysis.SPL
 {
     internal partial class Lexer : AbstractLexer
     {
-        //        private const int TriviaListInitialCapacity = 8;
+        internal enum SpecialType
+        {
+            None,
+            UInt32,
+            Character,
+        }
 
         internal struct TokenInfo
         {
             internal SyntaxKind Kind;
             internal string Text;
+            internal SpecialType ValueKind;
+
+            internal uint Value;
         }
+
+        protected readonly StringBuilder builder= new StringBuilder();
 
         public Lexer(SourceText text)
             : base(text)
         {
-
+            
         }
 
 
@@ -43,23 +55,6 @@ namespace BGC.CodeAnalysis.SPL
             return this.LexSyntaxToken();
         }
 
-        //        private SyntaxListBuilder _leadingTriviaCache = new SyntaxListBuilder(10);
-        //        private SyntaxListBuilder _trailingTriviaCache = new SyntaxListBuilder(10);
-
-        //        //private static int GetFullWidth(SyntaxListBuilder builder)
-        //        //{
-        //        //    int width = 0;
-
-        //        //    if (builder != null)
-        //        //    {
-        //        //        for (int i = 0; i < builder.Count; i++)
-        //        //        {
-        //        //            width += builder[i].FullWidth;
-        //        //        }
-        //        //    }
-
-        //        //    return width;
-        //        //}
 
         private SyntaxToken LexSyntaxToken()
         {
@@ -245,6 +240,19 @@ namespace BGC.CodeAnalysis.SPL
                     this.ScanIdentifierOrKeyword(ref info);
                     break;
 
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    this.ScanNumericLiteral(ref info);
+                    break;
+
 
                 case SlidingTextWindow.InvalidCharacter:
                     if(!TextWindow.IsReallyAtEnd())
@@ -265,13 +273,13 @@ namespace BGC.CodeAnalysis.SPL
         private bool ScanIdentifierOrKeyword(ref TokenInfo info)
         {
             int offset = 0;
-            StringBuilder sb = new StringBuilder();
+            builder.Clear();
             bool exit = false;
             do
             {
                 //get the actual char into the buffer
                 char character = TextWindow.PeekChar(offset);
-                sb.Append(character);
+                builder.Append(character);
 
                 //peel next char
                 character = TextWindow.PeekChar(offset + 1);
@@ -294,7 +302,7 @@ namespace BGC.CodeAnalysis.SPL
 
                 offset++;
             } while (!exit);
-            var text= sb.ToString();
+            var text= builder.ToString();
             var kind = SyntaxFacts.GetKeywordKind(text);
             if (text == "_") kind = SyntaxKind.UnderscoreToken;
             else if (kind == SyntaxKind.None) kind = SyntaxKind.IdentifierToken;
@@ -306,38 +314,123 @@ namespace BGC.CodeAnalysis.SPL
             return true;
         }
 
-        //        private void LexComment(ref TokenInfo token, SlidingTextWindow reader)
-        //        {
-        //            //var text = "";
-        //            //var c = '\0';
+        //##############################
+        #region Lex NumericalLiterals
+        //##############################
 
-        //            //do
-        //            //{
-        //            //    c = reader.NextChar();
-        //            //    text += c;
+        private bool ScanNumericLiteral(ref TokenInfo info)
+        {
+            int start = TextWindow.Position;
+            char ch;
+            bool isHex = false;
+            info.Text = null;
+            info.ValueKind = SpecialType.None;
+            builder.Clear();
 
-        //            //} while (!reader.IsReallyAtEnd() && c != '\n');
+            //check the int representation. hex? bin? oct?
+            ch = TextWindow.PeekChar();
+            if(ch== '0')
+            {
+                ch = TextWindow.PeekChar(1);
+                if(ch== 'x' || ch== 'X')
+                {
+                    TextWindow.AdvanceChar(2);
+                    isHex = true;
+                }
+            }
 
-        //            //token.Kind = SyntaxKind.SingleLineCommentToken;
-        //            //token.Text = text;
-        //        }
-        //        private void LexMultilineComment(ref TokenInfo token, SlidingTextWindow reader)
-        //        {
-        //            //var text = "";
-        //            //var c = '\0';
+            //get the value
+            ScanNumericaLiteralSingleInteger(isHex);
 
-        //            //do
-        //            //{
-        //            //    c = reader.NextChar();
-        //            //    text += c;
+            info.Kind = SyntaxKind.NumericLiteralToken;
+            info.Text = TextWindow.GetText(true);
+            Debug.Assert(info.Text != null);
+            var valueText = TextWindow.Intern(builder);
+            ulong val;
 
-        //            //} while (!reader.IsReallyAtEnd() && !text.EndsWith("*/"));
+            switch (info.ValueKind)
+            {
+                //to add other NOT integar values uncomment the line below.
+                //case SpecialType.Double:
+                //    info.DoubleValue= this GetDoubleValue(valueText);
 
-        //            //token.Kind = SyntaxKind.MultilineCommentToken;
-        //            //token.Text = text;
-        //        }
+                //a normal int value of any size. 16Bit 32Bit 64Bit signed or unsigned
+                default:
+                    if (string.IsNullOrEmpty(valueText))
+                    {
+                        val = 0; //safe default;
+                    }
+                    else
+                    {
+                        //store the Value in the biggest container possible
+                        val = GetValueUInt64(valueText, isHex);
+                    }
 
-        //private SyntaxToken Create(ref TokenInfo info, SyntaxListBuilder leading, SyntaxListBuilder trailing, SyntaxDiagnosticInfo[] errors)
+                    //we only support 32Bit unsigned
+                    if(val <= UInt32.MaxValue)
+                    {
+                        info.ValueKind = SpecialType.UInt32;
+                        info.Value = (uint)val;
+                    }
+                    else
+                    {
+                        //this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
+                        throw new NotImplementedException("Implement: this.AddError(MakeError(ErrorCode.ERR_IntOverflow))");
+                    }
+
+                    break;
+            }
+                        
+
+            return true;
+        }
+
+        /// <summary>
+        /// Scans the text as long it find numerical digits [0-9].
+        /// </summary>
+        /// <param name="isHex"><see langword="true"/> to include Hex Digits [a-f|A-F].</param>
+        private void ScanNumericaLiteralSingleInteger(bool isHex=false)
+        {
+            while (true)
+            {
+                char ch = TextWindow.PeekChar();
+                if (!(isHex ? SyntaxFacts.IsHexDigit(ch) :
+                              SyntaxFacts.IsDecDigit(ch)))
+                {
+                    break;
+                }
+                else
+                {
+                    builder.Append(ch);
+                }
+                TextWindow.AdvanceChar();
+            }
+        }
+
+        private ulong GetValueUInt64(string text, bool isHex)
+        {
+            ulong result;
+            if (!UInt64.TryParse(text, isHex ? NumberStyles.AllowHexSpecifier : NumberStyles.None, CultureInfo.InvariantCulture, out result))
+            {
+                //we've already lexed the literal, so the error must be from overflow
+                //this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
+                throw new NotImplementedException("Implement: this.AddError(MakeError(ErrorCode.ERR_IntOverflow))");
+            }
+
+            return result;
+        }
+
+        #endregion Lex NumericalLiterals
+        //##############################
+
+
+
+
+
+        //####
+        //Other
+        //####
+
         private SyntaxToken Create(ref TokenInfo info, object leading, object trailing, DiagnosticInfo[] errors)
         {
             //Debug.Assert(info.Kind != SyntaxKind.IdentifierToken || info.StringValue != null);
@@ -349,14 +442,28 @@ namespace BGC.CodeAnalysis.SPL
 
             switch (info.Kind)
             {
-                //case SyntaxKind.none:
-                //    token = SyntaxFactory.BadToken()
+                case SyntaxKind.None:
+                    //    token = SyntaxFactory.BadToken()
+                    throw new NotImplementedException();
 
                 //case SyntaxKind.EndOfLineTrivia:
                 //    token = SyntaxFactory.EndOfLine(info.Text);
                 //    break;
 
+                case SyntaxKind.NumericLiteralToken:
+                    switch (info.ValueKind)
+                    {
+                        case SpecialType.UInt32:
+                            //token = SyntaxFactory.Literal(leadingNode, info.Text, info.UintValue, trailingNode);
+                            token = SyntaxFactory.Literal(info.Text, info.Value);
+                            break;
+                        default:
+                            throw ExceptionUtilities.UnexpectedValue(info.ValueKind);
+                    }
+                    break;
+
                 default:
+                    Debug.Assert(SyntaxFacts.IsPunctuationOrKeyword(info.Kind));
                     //token = SyntaxFactory.Token(leading, info.Kind, trailing);
                     token = SyntaxFactory.Token(info.Kind);
                     break;
@@ -366,85 +473,6 @@ namespace BGC.CodeAnalysis.SPL
 
             return token;
         }
-
-        //        private void LexSyntaxTrivia(bool afterFirstToken, bool isTrailing, ref SyntaxListBuilder triviaList)
-        //        {
-        //            bool onlyWhitespaceOnLine = !isTrailing;
-
-        //            while(true)
-        //            {
-        //                this.Start();
-        //                char ch = TextWindow.PeekChar();
-
-        //                //out of range of UTF-7
-        //                if(ch > 127)
-        //                {
-        //                    if (SyntaxFacts.IsNewLine(ch))
-        //                    {
-        //                        ch = '\n';
-        //                    }
-        //                }
-
-        //                switch (ch)
-        //                {
-        //                    case '\r':
-        //                    case '\n':
-        //                        this.AddTrivia(this.ScanEndOfLine(), ref triviaList);
-
-        //                        if(isTrailing)
-        //                        {
-        //                            return;
-        //                        }
-
-        //                        onlyWhitespaceOnLine = true;
-        //                        break;
-
-        //                    default:
-        //                        return;
-        //                }
-        //            }
-        //        }
-
-        //        private void AddTrivia(SPLSyntaxNode trivia, ref SyntaxListBuilder list)
-        //        {
-        //            //if (this.HasErrors)
-        //            //{
-        //            //    trivia = trivia.WithDiagnosticsGreen(this.GetErrors(leadingTriviaWidth: 0));
-        //            //}
-
-        //            if (list == null)
-        //            {
-        //                list = new SyntaxListBuilder(TriviaListInitialCapacity);
-        //            }
-
-        //            list.Add(trivia);
-        //        }
-
-
-        //        //#########################################################################################
-
-        //        /// <summary>
-        //        /// Scans a new-line sequence (either a single new-line character or a CR-LF combo).
-        //        /// </summary>
-        //        /// <returns>A trivia node with the new-line text</returns>
-        //        private SPLSyntaxNode ScanEndOfLine()
-        //        {
-        //            char ch;
-        //            switch (ch= TextWindow.PeekChar())
-        //            {
-        //                case '\n':
-        //                    TextWindow.AdvanceChar();
-        //                    return SyntaxFactory.EndOfLine(ch.ToString());
-        //                default:
-        //                    if( SyntaxFacts.IsNewLine(ch))
-        //                    {
-        //                        TextWindow.AdvanceChar();
-        //                        return SyntaxFactory.EndOfLine(ch.ToString());
-        //                    }
-
-        //                    return null;
-        //            }
-        //        }
 
     }
 }

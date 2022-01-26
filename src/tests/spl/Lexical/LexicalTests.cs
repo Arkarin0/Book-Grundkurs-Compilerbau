@@ -1,5 +1,4 @@
 ﻿using Xunit;
-using BGC.Core.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -146,62 +145,83 @@ namespace BGC.Core.Lexical.Tests
         //}
 
 
-        //        [Fact()]
-        //        public void LexSingleLineCommentTest()
-        //        {
-        //            var kind = SyntaxKind.SingleLineCommentTrivia;
-        //            LexCommentTestHelper(kind, "//abc");
-        //            LexCommentTestHelper(kind, "//abcdef//fgh");
-        //            LexCommentTestHelper(kind, "//abcdef     //fgh");
-        //            LexCommentTestHelper(kind, "//abcdef\r//fgh");
-        //            LexCommentTestHelper(kind, "//abcdef\n", "//ghij");
-        //            LexCommentTestHelper(kind, "//abcdef\n", "//ghij\r\n");
+        [Fact]
+        [Trait("Feature", "Literals")]
+        public void TestNumericLiteral()
+        {
+            var value = 123u;
+            var text = "123";
+            var token = LexToken(text);
 
-        //        }
-        //        [Fact()]
-        //        public void LexMultiLineCommentTest()
-        //        {
-        //            var kind = SyntaxKind.MultiLineCommentTrivia;
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.NumericLiteralToken, token.Kind());
+            var errors = token.Errors();
+            Assert.Equal(0, errors.Length);
+            Assert.Equal(text, token.Text);
+            Assert.Equal(value, token.Value);
+        }
 
+        [Theory]
+        [Trait("Feature", "Literals")]
+        [InlineData("0x123",0x123u)]
+        [InlineData("0xA", 0xA)]
+        [InlineData("0xa", 0xa)]
+        [InlineData("0xB", 0xB)]
+        [InlineData("0xb", 0xb)]
+        [InlineData("0xC", 0xC)]
+        [InlineData("0xc", 0xc)]
+        [InlineData("0xD", 0xD)]
+        [InlineData("0xd", 0xd)]
+        [InlineData("0xE", 0xE)]
+        [InlineData("0xe", 0xe)]
+        [InlineData("0xF", 0xF)]
+        [InlineData("0xf", 0xF)]
+        public void TestHexNumericLiteral(string text, uint value)
+        {
+            var token = LexToken(text);
 
-        //            LexCommentTestHelper(kind, "/*abc*/");
-        //            LexCommentTestHelper(kind, "/*abcdef  def//fgh*/");
-        //            LexCommentTestHelper(kind, "/*abcdef\r\nfgh*/");
-        //            LexCommentTestHelper(kind, "/*abcdef\r\n//fgh*/");
-        //            LexCommentTestHelper(kind, "/*abcdef\n*/", "/*ghij*/");
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.NumericLiteralToken, token.Kind());
+            var errors = token.Errors();
+            Assert.Equal(0, errors.Length);
+            Assert.Equal(text, token.Text);
+            Assert.Equal(value, token.Value);
+        }
 
+        [Fact]
+        [Trait("Feature", "Literals")]
+        public void TestNumericLiteral_UInt64_ErrIntOverflow()
+        {
+            var value = 0;
+            var text = ulong.MaxValue.ToString() + "1";
+            var token = LexToken(text);
 
-        //        }
-        //        private void LexCommentTestHelper(SyntaxKind kind, params string[] text)
-        //        {
-        //            string expected = string.Join("", text);
-        //            var lexer = this.CreateValidInstance(expected);
-        //            var actual = lexer.Lex();
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.NumericLiteralToken, token.Kind());
+            var errors = token.Errors();
+            Assert.NotEqual(0, errors.Length);
+            Assert.Equal(text, token.Text);
+            Assert.Equal(value, token.Value);
 
-        //            int index = 0;
-        //            //Assert.All(actual, (item) =>
-        //            //{
-        //            //    var expectedText = text[index++];
-        //            //    Assert.Equal(expectedText, item.ValueText);
-        //            //    Assert.Equal(kind, item.Kind);
-        //            //});
-        //        }
+            Assert.True(false, "Implement ErrorCheck");
+        }
 
-        //        [Theory()]
-        //        [InlineData("\r")]
-        //        [InlineData("\n")]
-        //        [InlineData("\r\n")]
-        //        [InlineData("\u0085")]
-        //        [InlineData("\u2028")]
-        //        [InlineData("\u2029")]        
-        //        public void LexEndOfLineTriviaTest(string text)
-        //        {
+        [Fact]
+        [Trait("Feature", "Literals")]
+        public void TestNumericLiteral_UInt32_ErrIntOverflow()
+        {
+            var value = 0;
+            var text = uint.MaxValue.ToString() + "1";
+            var token = LexToken(text);
 
-        //            var actualToken = Lex(text);
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.NumericLiteralToken, token.Kind());
+            var errors = token.Errors();
+            Assert.NotEqual(0, errors.Length);
+            Assert.Equal(text, token.Text);
+            Assert.Equal(value, token.Value);
 
-        //            Assert.Equal(SyntaxKind.EndOfLineTrivia, actualToken.Kind);
-        //            Assert.Equal(text, actualToken.ToString());
-
-        //        }
+            Assert.True(false, "Implement ErrorCheck");
+        }
     }
 }

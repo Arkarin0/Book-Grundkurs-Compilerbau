@@ -1,5 +1,4 @@
 ﻿using Xunit;
-using BGC.Core.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ using BGC.CodeAnalysis.SPL;
 using Microsoft.CodeAnalysis.Text;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 
-namespace BGC.Core.Parser.Tests
+namespace BGC.SPL.Parser.Tests
 {
     public class LexerTests
     {
@@ -20,6 +19,23 @@ namespace BGC.Core.Parser.Tests
             return lexer;
         }
 
+        [Fact]
+        public void Create_AtNumericLliteralAndUnkownValueKind_ThrowsUnkownValueException()
+        {
+            var obj = CreateValidInstance();
+            var token = new Lexer.TokenInfo();
+            var text = "Unexpected value '";
+
+            //find a value which is not in the enum
+            int val = 0;
+            while(Enum.IsDefined(typeof(Lexer.SpecialType),val)) val++;
+
+            token.Kind = SyntaxKind.NumericLiteralToken;
+            token.ValueKind = (Lexer.SpecialType)val;
+            
+            var ex =Assert.Throws<InvalidOperationException>(() => obj.CreateTestHelper(ref token));
+            Assert.True(ex.Message.StartsWith(text), "The exception does not start with:\n" + text);
+        }
        
     }
 }
