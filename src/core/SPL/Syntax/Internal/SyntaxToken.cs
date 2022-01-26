@@ -112,7 +112,16 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             this.flags |= NodeFlags.IsNotMissing;
         }
 
-        
+        internal SyntaxToken(SyntaxKind kind, int fullwidth) : base(kind,fullwidth)
+        {
+            this.flags |= NodeFlags.IsNotMissing;
+        }
+        internal SyntaxToken(SyntaxKind kind,int fullwidth, DiagnosticInfo[] diagnostics) : base(kind, diagnostics, fullwidth)
+        {
+            this.flags |= NodeFlags.IsNotMissing;
+        }
+
+
         /// <inheritdoc cref="ToString"/>        
         public virtual string Text
         {

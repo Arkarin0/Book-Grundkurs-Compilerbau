@@ -20,7 +20,7 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
         [Fact()]
         public void CTorTest()
         {
-            TestHelper.AssertCTorWithDiagnostics<SyntaxTokenWithTrivia>();
+            TestHelper.AssertCTorWithDiagnostics<SyntaxTokenWithTrivia>( hasFullWidth:false);
         }
 
         [Fact()]
