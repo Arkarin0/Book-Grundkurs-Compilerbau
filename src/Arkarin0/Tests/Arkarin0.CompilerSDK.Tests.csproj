@@ -3,7 +3,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
 	<IsPackable>false</IsPackable>
-
+	  <DefineConstants>$(DefineConstants);SDK</DefineConstants>
  
   </PropertyGroup>
   <ItemGroup>

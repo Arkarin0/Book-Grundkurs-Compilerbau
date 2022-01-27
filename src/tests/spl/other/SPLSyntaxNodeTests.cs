@@ -25,7 +25,7 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             {
             }
 
-            public SPLSyntaxNode(SyntaxKind kind, DiagnosticInfo[] diagnostics, int fullWidth) : base(kind, diagnostics, fullWidth)
+            public SPLSyntaxNode(SyntaxKind kind,int fullWidth, DiagnosticInfo[] diagnostics) : base(kind, fullWidth, diagnostics)
             {
             }
 
@@ -53,6 +53,8 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
             obj = new SPLSyntaxNode(kind, length);
             Assert.Equal(kind, obj.Kind);
             Assert.Equal(length, obj.FullWidth);
+
+            TestHelper.AssertCTor<SPLSyntaxNode>(isMissing:true);
         }
 
 
@@ -60,31 +62,32 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
         [Fact()]
         public void Ctor_WithDiagnosticInfoTest()
         {
-            SyntaxKind kind = SyntaxKind.OfKeyword;
-            var obj = new SPLSyntaxNode(kind, null);
-            Assert.Equal(kind, obj.Kind);
-            Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            //SyntaxKind kind = SyntaxKind.OfKeyword;
+            //var obj = new SPLSyntaxNode(kind, null);
+            //Assert.Equal(kind, obj.Kind);
+            //Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
 
-            kind = SyntaxKind.OpenBracketToken;
-            obj = new SPLSyntaxNode(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) });
-            Assert.Equal(kind, obj.Kind);
-            Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            //kind = SyntaxKind.OpenBracketToken;
+            //obj = new SPLSyntaxNode(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) });
+            //Assert.Equal(kind, obj.Kind);
+            //Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
 
 
 
-            kind = SyntaxKind.OpenParenToken;
-            int length = 12;
-            obj = new SPLSyntaxNode(kind, null, length);
-            Assert.Equal(kind, obj.Kind);
-            Assert.Equal(length, obj.FullWidth);
-            Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            //kind = SyntaxKind.OpenParenToken;
+            //int length = 12;
+            //obj = new SPLSyntaxNode(kind, null, length);
+            //Assert.Equal(kind, obj.Kind);
+            //Assert.Equal(length, obj.FullWidth);
+            //Assert.NotEqual(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
 
-            kind = SyntaxKind.PlusToken;
-            length = 13;
-            obj = new SPLSyntaxNode(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) }, length);
-            Assert.Equal(kind, obj.Kind);
-            Assert.Equal(length, obj.FullWidth);
-            Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            //kind = SyntaxKind.PlusToken;
+            //length = 13;
+            //obj = new SPLSyntaxNode(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) }, length);
+            //Assert.Equal(kind, obj.Kind);
+            //Assert.Equal(length, obj.FullWidth);
+            //Assert.Equal(GreenNode.NodeFlags.ContainsDiagnostics, obj.Flags);
+            TestHelper.AssertCTorWithDiagnostics<SPLSyntaxNode>(isMissing: true);
         }
 
         [Theory()]

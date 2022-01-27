@@ -8,6 +8,7 @@ using System.IO;
 using BGC.CodeAnalysis.SPL;
 using Microsoft.CodeAnalysis.Text;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
+using BGC.CodeAnalysis;
 
 namespace BGC.Core.Lexical.Tests
 {
@@ -188,29 +189,12 @@ namespace BGC.Core.Lexical.Tests
             Assert.Equal(value, token.Value);
         }
 
-        [Fact]
-        [Trait("Feature", "Literals")]
-        public void TestNumericLiteral_UInt64_ErrIntOverflow()
-        {
-            var value = 0;
-            var text = ulong.MaxValue.ToString() + "1";
-            var token = LexToken(text);
-
-            Assert.NotEqual(default, token);
-            Assert.Equal(SyntaxKind.NumericLiteralToken, token.Kind());
-            var errors = token.Errors();
-            Assert.NotEqual(0, errors.Length);
-            Assert.Equal(text, token.Text);
-            Assert.Equal(value, token.Value);
-
-            Assert.True(false, "Implement ErrorCheck");
-        }
 
         [Fact]
         [Trait("Feature", "Literals")]
         public void TestNumericLiteral_UInt32_ErrIntOverflow()
         {
-            var value = 0;
+            var value = 0u;
             var text = uint.MaxValue.ToString() + "1";
             var token = LexToken(text);
 
@@ -221,7 +205,8 @@ namespace BGC.Core.Lexical.Tests
             Assert.Equal(text, token.Text);
             Assert.Equal(value, token.Value);
 
-            Assert.True(false, "Implement ErrorCheck");
+            var error = errors.ElementAtOrDefault(0);
+            error.ErrorCodeEquals(ErrorCode.ERR_IntOverflow);
         }
     }
 }

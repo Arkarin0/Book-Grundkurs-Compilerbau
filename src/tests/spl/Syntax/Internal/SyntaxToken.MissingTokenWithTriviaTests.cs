@@ -20,7 +20,7 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax.Tests
         [Fact()]
         public void CTorTest()
         {
-            var obj = TestHelper.AssertCTorWithDiagnostics<MissingTokenWithTrivia>(hasFullWidth:false);
+            var obj = TestHelper.AssertCTorWithDiagnostics<MissingTokenWithTrivia>(hasFullWidth:false, isMissing:true);
             var flag = GreenNode.NodeFlags.IsNotMissing;
 
             Assert.False((obj.Flags & flag) != 0, $"The {flag}-flag is set.");

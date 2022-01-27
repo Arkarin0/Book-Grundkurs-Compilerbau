@@ -29,7 +29,7 @@ namespace BGC.CodeAnalysis.SPL
             internal string Text;
             internal SpecialType ValueKind;
 
-            internal uint Value;
+            internal uint UInt32Value;
         }
 
         protected readonly StringBuilder builder= new StringBuilder();
@@ -67,7 +67,7 @@ namespace BGC.CodeAnalysis.SPL
             this.Start();
             this.ScanSyntaxToken(ref tokenInfo);
             //var errors = this.GetErrors(GetFullWidth(leading));
-            var errors = new DiagnosticInfo[0];
+            var errors = this.GetErrors();
 
             //_trailingTriviaCache.Clear();
             //this.LexSyntaxTrivia(afterFirstToken: true, isTrailing: true, triviaList: ref _trailingTriviaCache);
@@ -363,19 +363,21 @@ namespace BGC.CodeAnalysis.SPL
                     else
                     {
                         //store the Value in the biggest container possible
-                        val = GetValueUInt64(valueText, isHex);
+                        val = GetValueUInt32(valueText, isHex);
                     }
 
                     //we only support 32Bit unsigned
                     if(val <= UInt32.MaxValue)
                     {
                         info.ValueKind = SpecialType.UInt32;
-                        info.Value = (uint)val;
+                        info.UInt32Value = (uint)val;
                     }
                     else
                     {
-                        //this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
-                        throw new NotImplementedException("Implement: this.AddError(MakeError(ErrorCode.ERR_IntOverflow))");
+                        this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
+                        //store the value in the biggest container.
+                        info.ValueKind = SpecialType.UInt32;
+                        info.UInt32Value = (uint)val;
                     }
 
                     break;
@@ -407,14 +409,13 @@ namespace BGC.CodeAnalysis.SPL
             }
         }
 
-        private ulong GetValueUInt64(string text, bool isHex)
+        private uint GetValueUInt32(string text, bool isHex)
         {
-            ulong result;
-            if (!UInt64.TryParse(text, isHex ? NumberStyles.AllowHexSpecifier : NumberStyles.None, CultureInfo.InvariantCulture, out result))
+            uint result;
+            if (!UInt32.TryParse(text, isHex ? NumberStyles.AllowHexSpecifier : NumberStyles.None, CultureInfo.InvariantCulture, out result))
             {
                 //we've already lexed the literal, so the error must be from overflow
-                //this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
-                throw new NotImplementedException("Implement: this.AddError(MakeError(ErrorCode.ERR_IntOverflow))");
+                this.AddError(MakeError(ErrorCode.ERR_IntOverflow));
             }
 
             return result;
@@ -455,7 +456,7 @@ namespace BGC.CodeAnalysis.SPL
                     {
                         case SpecialType.UInt32:
                             //token = SyntaxFactory.Literal(leadingNode, info.Text, info.UintValue, trailingNode);
-                            token = SyntaxFactory.Literal(info.Text, info.Value);
+                            token = SyntaxFactory.Literal(info.Text, info.UInt32Value);
                             break;
                         default:
                             throw ExceptionUtilities.UnexpectedValue(info.ValueKind);
@@ -469,7 +470,10 @@ namespace BGC.CodeAnalysis.SPL
                     break;
             }
 
-            //throw new NotImplementedException();
+            if (errors != null)
+            {
+                token = token.WithDiagnosticsGreen(errors);
+            }
 
             return token;
         }

@@ -11,13 +11,14 @@ namespace Arkarin0.CodeAnalysis.Tests
     public class DiagnosticInfoTests
     {
         [Fact()]
-        public void DiagnosticInfoTest()
+        public void CtorTest()
         {
+            CommonMessageProvider provider = null;
             int errorcode = 10;
+            object[] args = { errorcode };
 
             var obj = new DiagnosticInfo(errorcode);
-
-            Assert.Equal(errorcode, obj.Code);
+            TestHelper.CTorDiagnosticInfo(obj, provider, errorcode);
         }
 
         [Fact()]
@@ -29,6 +30,14 @@ namespace Arkarin0.CodeAnalysis.Tests
 
             var expected = "error:" + errorcode;
             Assert.Equal(expected, str);            
+        }
+
+        [Fact()]
+        public void GetResolvedInfo_ThrowsUnreachableExceptionTest()
+        {
+            int errorcode = 10;
+            var obj = new DiagnosticInfo(errorcode);
+            TestHelper.AssertUnreachableExceptionIsThrown(()=>obj.GetResolvedInfo());
         }
     }
 }

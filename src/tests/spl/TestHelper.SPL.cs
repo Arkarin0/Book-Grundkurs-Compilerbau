@@ -9,46 +9,30 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace BGC.SPL
+using SyntaxDiagnosticInfo = BGC.CodeAnalysis.SPL.SyntaxDiagnosticInfo;
+
+
+namespace BGC.CodeAnalysis
 {
     static internal partial class TestHelper
     {
-#nullable enable
-        private static T CreateInstance<T>(params object?[]? args)
-#nullable disable
+        private static DiagnosticInfo CreateDiagnosticInfo(int errorcode)
         {
-            var flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
-            
-            return (T)Activator.CreateInstance(typeof(T),flags, binder:null,args, culture:null);
+            return new SyntaxDiagnosticInfo((ErrorCode)errorcode);
+        }
+        private static DiagnosticInfo CreateDiagnosticInfo(ErrorCode errorcode)
+        {
+            return new SyntaxDiagnosticInfo(errorcode);
         }
 
 
-        public static T AssertSetDiagnostics<T>(T node) where T : GreenNode
+        public static T AssertCTor<T>(bool hasFullWidth = true, bool isMissing=false) where T : SPLSyntaxNode
         {
-            var obj = node;
-            DiagnosticInfo diagnostic = new DiagnosticInfo(int.MaxValue);
-            DiagnosticInfo[] old = obj.GetDiagnostics(), expected = new[] { diagnostic };
-
-
-            var obj2 = obj.SetDiagnostics(new[] { diagnostic });
-
-            Assert.Equal(expected,obj2.GetDiagnostics());
-            Assert.NotEqual(expected, old);
-
-            Assert.IsType<T>(obj2);
-
-            return obj2 as T;
-        }
-
-        public static T AssertCTor<T>(bool hasFullWidth = true) where T : SPLSyntaxNode
-        {
-            bool isMissingToken = typeof(T).IsAssignableTo(typeof(SyntaxToken.MissingTokenWithTrivia));
-            bool isSyntaxToken = typeof(T).IsAssignableFrom(typeof(SyntaxToken));
-
             SyntaxKind kind = SyntaxKind.OfKeyword;
             var obj = CreateInstance<T>(kind);
             Assert.Equal(kind, obj.Kind);
-            if (isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            
+            if (isMissing) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
             else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
 
 
@@ -64,38 +48,39 @@ namespace BGC.SPL
             return obj;
         }
 
-        public static T AssertCTorWithDiagnostics<T>(bool hasFullWidth=true) where T : SPLSyntaxNode
+        public static T AssertCTorWithDiagnostics<T>(bool hasFullWidth=true, bool isMissing = false) where T : SPLSyntaxNode
         {
-            bool isMissingToken = typeof(T).IsAssignableTo(typeof(SyntaxToken.MissingTokenWithTrivia));
-            bool isSyntaxToken= typeof(T).IsAssignableTo(typeof(SyntaxToken));
+            SyntaxKind kind = SyntaxKind.None;
+            DiagnosticInfo[] emptyDiagnostics = Array.Empty<DiagnosticInfo>();
+            DiagnosticInfo[] filledDiagnostics = new DiagnosticInfo[] { CreateDiagnosticInfo(10) };
 
-            SyntaxKind kind = SyntaxKind.OfKeyword;
-            DiagnosticInfo[] nullDiagnostics = Array.Empty<DiagnosticInfo>();
-            var obj = CreateInstance<T>(kind, nullDiagnostics);
+
+            kind = SyntaxKind.OfKeyword;
+            var obj = CreateInstance<T>(kind, emptyDiagnostics);
             Assert.Equal(kind, obj.Kind);
             AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
-            if(isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            if(isMissing) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
             else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
 
             kind = SyntaxKind.OpenBracketToken;
-            obj = CreateInstance<T>(kind, new DiagnosticInfo[] { new DiagnosticInfo(10) });
+            obj = CreateInstance<T>(kind, filledDiagnostics);
             Assert.Equal(kind, obj.Kind);
             AssertAreFlagsSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
-            if (isMissingToken) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
+            if (isMissing) AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.IsNotMissing);
             else AssertAreFlagsSet(obj, GreenNode.NodeFlags.IsNotMissing);
 
             if (hasFullWidth)
             {
                 kind = SyntaxKind.OpenParenToken;
                 int length = 12;
-                obj = CreateInstance<T>(kind, length, nullDiagnostics);
+                obj = CreateInstance<T>(kind, length, emptyDiagnostics);
                 Assert.Equal(kind, obj.Kind);
                 Assert.Equal(length, obj.FullWidth);
                 AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
 
                 kind = SyntaxKind.PlusToken;
                 length = 13;
-                obj = CreateInstance<T>(kind, length, new DiagnosticInfo[] { new DiagnosticInfo(10) });
+                obj = CreateInstance<T>(kind, length, filledDiagnostics);
                 Assert.Equal(kind, obj.Kind);
                 Assert.Equal(length, obj.FullWidth);
                 AssertAreFlagsSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
@@ -104,16 +89,7 @@ namespace BGC.SPL
             return obj;
         }
 
-        public static void AssertAreFlagsSet(GreenNode node, GreenNode.NodeFlags flags)
-        {
-            var actual = node.Flags.HasFlag(flags);
-            Assert.True(actual, $"The {flags}-flag(s) are not set.");
-        }
-        public static void AssertAreFlagsNotSet(GreenNode node, GreenNode.NodeFlags flags)
-        {
-            var actual = !node.Flags.HasFlag(flags);
-            Assert.True(actual, $"The {flags}-flag(s) are set.");
-        }
+       
 
         public static void AssertTextAndValue<T>(SyntaxToken.SyntaxTokenWithValue<T> @object, SyntaxKind kind , string text, T value)
         {
@@ -129,5 +105,30 @@ namespace BGC.SPL
             Assert.Equal(valueText, @object.ValueText);
             Assert.Equal(valueText, @object.GetValueText());
         }
+
+        public static T ErrorCodeEquals<T>(this T diagnosticInfo, ErrorCode expectedErrorCode) where T : DiagnosticInfo
+        {
+            Assert.Equal(expectedErrorCode, (ErrorCode)diagnosticInfo.Code);
+
+            return diagnosticInfo;
+        }
+
+        #region SyntaxDiagnosticInfo Tests
+        public static void CTorSyntaxDiagnosticInfo(SyntaxDiagnosticInfo @object, int offset, int width, ErrorCode errorCode, object[] arguments)
+        {
+            Assert.Equal(errorCode, (ErrorCode)@object.Code);
+
+            CTorSyntaxDiagnosticInfo(@object, MessageProvider.Instance, offset, width, (int)errorCode, arguments);
+        }
+
+        public static void CTorSyntaxDiagnosticInfo(SyntaxDiagnosticInfo @object, int offset, int width, ErrorCode errorCode)
+        => CTorSyntaxDiagnosticInfo(@object, offset, width, errorCode, Array.Empty<object>());
+
+        public static void CTorSyntaxDiagnosticInfo(SyntaxDiagnosticInfo @object, ErrorCode errorCode, object[] arguments)
+        => CTorSyntaxDiagnosticInfo(@object, 0, 0, errorCode, arguments);
+
+        public static void CTorSyntaxDiagnosticInfo(SyntaxDiagnosticInfo @object, ErrorCode errorCode)
+        => CTorSyntaxDiagnosticInfo(@object, 0, 0, errorCode);
+        #endregion
     }
 }

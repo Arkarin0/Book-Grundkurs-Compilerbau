@@ -39,10 +39,10 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
         /// <summary>
         /// Initializes a new instance of the <see cref="SPLSyntaxNode"/> class.
         /// </summary>
-        /// <param name="kind">The kind.</param>
-        /// <param name="diagnostics">The diagnostics.</param>
+        /// <param name="kind">The kind.</param>        
         /// <param name="fullWidth">The full width.</param>
-        protected SPLSyntaxNode(SyntaxKind kind, DiagnosticInfo[] diagnostics, int fullWidth) : base((ushort)kind, diagnostics, fullWidth)
+        /// <param name="diagnostics">The diagnostics.</param>
+        protected SPLSyntaxNode(SyntaxKind kind, int fullWidth, DiagnosticInfo[] diagnostics) : base((ushort)kind, diagnostics, fullWidth)
         {
         }
 
