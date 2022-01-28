@@ -89,7 +89,41 @@ namespace BGC.CodeAnalysis
             return obj;
         }
 
-       
+        /// <summary>
+        /// Asserts that the <see cref="DiagnosticInfo"/>[] argument of the constructor works properly.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="createInstance">The create instance.</param>
+        /// <exception cref="System.ArgumentNullException">createInstance</exception>
+        /// <remarks>
+        /// It also tests the <see cref="GreenNode.Flags"/> for <see cref="GreenNode.NodeFlags.ContainsDiagnostics"/>-flag;
+        /// The <see cref="GreenNode.ContainsDiagnostics"/>-property.
+        /// </remarks>
+        public static void AssertCTorWithDiagnostics<T>( Func<DiagnosticInfo[],T> createInstance) where T : SPLSyntaxNode
+        {
+            if(createInstance == null) throw new ArgumentNullException(nameof(createInstance));
+
+            var code = ErrorCode.ERR_IntOverflow;
+            var error = CreateDiagnosticInfo(code);
+            DiagnosticInfo[] emptyDiagnostics = Array.Empty<DiagnosticInfo>();
+            DiagnosticInfo[] filledDiagnostics = new DiagnosticInfo[] { error };
+
+
+            var obj = createInstance(emptyDiagnostics);            
+            AssertAreFlagsNotSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
+            Assert.False(obj.ContainsDiagnostics);
+
+            obj = createInstance(filledDiagnostics);
+            AssertAreFlagsSet(obj, GreenNode.NodeFlags.ContainsDiagnostics);
+            Assert.True(obj.ContainsDiagnostics);
+
+            var diagnostics = obj.GetDiagnostics();
+            Assert.True(1== diagnostics.Length,"diagnostig.length is wrong.");
+            Assert.Contains(error, diagnostics);
+            diagnostics.ElementAt(0).ErrorCodeEquals(code);
+        }
+
+
 
         public static void AssertTextAndValue<T>(SyntaxToken.SyntaxTokenWithValue<T> @object, SyntaxKind kind , string text, T value)
         {
