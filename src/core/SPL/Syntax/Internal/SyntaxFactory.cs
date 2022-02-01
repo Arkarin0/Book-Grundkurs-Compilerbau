@@ -93,12 +93,13 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
             return SyntaxToken.WithValue(SyntaxKind.NumericLiteralToken, text, value);
         }
         
-        
-        
-        
-        
-        
-        
+        internal static SyntaxToken BadToken(string text)
+            => SyntaxToken.WithValue( SyntaxKind.BadToken, text, text);
+
+
+
+
+
         /// <inheritdoc cref="SyntaxToken.GetWellKnownTokens()"/>
         public static IEnumerable<SyntaxToken> GetWellKnownTokens() 
             => SyntaxToken.GetWellKnownTokens();

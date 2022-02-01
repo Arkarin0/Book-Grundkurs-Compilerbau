@@ -266,7 +266,10 @@ namespace BGC.CodeAnalysis.SPL
                     info.Kind = SyntaxKind.EndOfFileToken;
                     break;
                 default:
-                    throw new NotImplementedException();
+
+                    info.Text = character.ToString();
+                    this.AddError(MakeError(ErrorCode.ERR_UnexpectedCharacter));
+                    break;
             }
         }
 
@@ -444,8 +447,9 @@ namespace BGC.CodeAnalysis.SPL
             switch (info.Kind)
             {
                 case SyntaxKind.None:
-                    //    token = SyntaxFactory.BadToken()
-                    throw new NotImplementedException();
+                    token = SyntaxFactory.BadToken(info.Text);
+                    break;
+
 
                 //case SyntaxKind.EndOfLineTrivia:
                 //    token = SyntaxFactory.EndOfLine(info.Text);

@@ -113,6 +113,22 @@ namespace BGC.Core.Lexical.Tests
             Assert.Equal(text, token.ValueText);
         }
 
+        [Fact]
+        [Trait("Feature", "Literals")]
+        public void TestInvalidCharacterLiteral()
+        {
+            var value = "@";
+            var text = value;
+            var token = LexToken(text);
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.BadToken, token.Kind());
+            Assert.Equal(text, token.Text);
+            var errors = token.Errors();
+            Assert.Equal(1, errors.Length);
+            Assert.Equal(value, token.ValueText);
+        }
+
         //[Fact]
         //[Trait("Feature", "Literals")]
         //public void TestCharacterLiteral()

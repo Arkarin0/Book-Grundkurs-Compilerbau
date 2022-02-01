@@ -16,6 +16,8 @@ namespace BGC.CodeAnalysis.SPL
         
         ERR_IntOverflow = 1021,
 
+        ERR_UnexpectedCharacter = 1100,
+
         #endregion  Diagnistics introduced in SPL 1
     }
 }
