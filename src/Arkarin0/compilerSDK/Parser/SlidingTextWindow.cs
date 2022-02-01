@@ -76,6 +76,9 @@ namespace Arkarin0.CodeAnalysis
             }
         }
 
+        public SourceText Text => _text;
+
+
         /// <summary>
         /// The current absolute position in the text file.
         /// </summary>
@@ -95,6 +98,39 @@ namespace Arkarin0.CodeAnalysis
             get
             {
                 return _offset;
+            }
+        }
+
+        /// <summary>
+        /// The buffer backing the current window.
+        /// </summary>
+        public char[] CharacterWindow
+        {
+            get
+            {
+                return _characterWindow;
+            }
+        }
+
+        /// <summary>
+        /// Number of characters in the character window.
+        /// </summary>
+        public int CharacterWindowCount
+        {
+            get
+            {
+                return _characterWindowCount;
+            }
+        }
+
+        /// <summary>
+        /// Returns the start of the current lexeme relative to the window start.
+        /// </summary>
+        public int LexemeRelativeStart
+        {
+            get
+            {
+                return _lexemeStart;
             }
         }
 

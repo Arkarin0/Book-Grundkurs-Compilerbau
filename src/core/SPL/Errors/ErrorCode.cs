@@ -14,7 +14,7 @@ namespace BGC.CodeAnalysis.SPL
         #region Diagnistics introduced in SPL 1
 
         
-        ERR_IntOverflow = 1021,
+        ERR_IntOverflow = 1000,
 
         ERR_UnexpectedCharacter = 1100,
 

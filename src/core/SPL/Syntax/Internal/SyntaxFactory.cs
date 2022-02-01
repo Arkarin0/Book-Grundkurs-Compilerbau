@@ -88,6 +88,25 @@ namespace BGC.CodeAnalysis.SPL.Syntax.InternalSyntax
         internal static SyntaxToken MissingToken(GreenNode leading, SyntaxKind kind, GreenNode trailing)
             => SyntaxToken.CreateMissing(kind, leading, trailing);
 
+
+        internal static SyntaxToken Identifier(string text)
+        {
+            //return Identifier(SyntaxKind.IdentifierToken, null, text, text, null);
+            return SyntaxToken.Identifier(text);
+        }
+
+        //internal static SyntaxToken Identifier(GreenNode leading, string text, GreenNode trailing)
+        //{
+        //    return Identifier(SyntaxKind.IdentifierToken, leading, text, text, trailing);
+        //}
+
+        //internal static SyntaxToken Identifier(SyntaxKind contextualKind, GreenNode leading, string text, string valueText, GreenNode trailing)
+        //{
+        //    return SyntaxToken.Identifier(contextualKind, leading, text, valueText, trailing);            
+        //}
+
+
+
         internal static SyntaxToken Literal(string text, uint value)
         {
             return SyntaxToken.WithValue(SyntaxKind.NumericLiteralToken, text, value);

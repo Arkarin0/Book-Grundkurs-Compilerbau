@@ -9,6 +9,7 @@ using BGC.CodeAnalysis.SPL;
 using Microsoft.CodeAnalysis.Text;
 using BGC.CodeAnalysis.SPL.Syntax.InternalSyntax;
 using BGC.CodeAnalysis;
+using System.Globalization;
 
 namespace BGC.Core.Lexical.Tests
 {
@@ -113,21 +114,137 @@ namespace BGC.Core.Lexical.Tests
             Assert.Equal(text, token.ValueText);
         }
 
+
+        #region Identifier
+
         [Fact]
-        [Trait("Feature", "Literals")]
+        [Trait("Feature", "BadToken")]
         public void TestInvalidCharacterLiteral()
         {
-            var value = "@";
-            var text = value;
+            var value = "";
+            var text = "@";
             var token = LexToken(text);
 
             Assert.NotEqual(default, token);
             Assert.Equal(SyntaxKind.BadToken, token.Kind());
-            Assert.Equal(text, token.Text);
+            Assert.Equal("", token.Text);
             var errors = token.Errors();
             Assert.Equal(1, errors.Length);
-            Assert.Equal(value, token.ValueText);
+            Assert.Equal("", token.ValueText);
+            var error= errors.ElementAt(0);
+            error.ErrorCodeEquals(ErrorCode.ERR_UnexpectedCharacter);
+            error.ArgumentsEqual(value);
         }
+
+        [Fact]
+        [Trait("Feature", "Identifiers")]
+        public void TestSingleLetterIdentifier()
+        {
+            var text = "a";
+            var token = LexToken(text);
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.IdentifierToken, token.Kind());
+            Assert.Equal(text, token.Text);
+            var errors = token.Errors();
+            Assert.Equal(0, errors.Length);
+            Assert.Equal(text, token.ValueText);
+        }
+
+        [Fact]
+        [Trait("Feature", "Identifiers")]
+        public void TestMultiLetterIdentifier()
+        {
+            var text = "abc";
+            var token = LexToken(text);
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.IdentifierToken, token.Kind());
+            Assert.Equal(text, token.Text);
+            var errors = token.Errors();
+            Assert.Equal(0, errors.Length);
+            Assert.Equal(text, token.ValueText);
+        }
+
+        [Fact]
+        [Trait("Feature", "Identifiers")]
+        public void TestMixedAlphaNumericIdentifier()
+        {
+            var text = "a0b1c2";
+            var token = LexToken(text);
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.IdentifierToken, token.Kind());
+            Assert.Equal(text, token.Text);
+            var errors = token.Errors();
+            Assert.Equal(0, errors.Length);
+            Assert.Equal(text, token.ValueText);
+        }
+
+        [Fact]
+        [Trait("Feature", "BadToken")]
+        public void TestBadTokenWithUnicode()
+        {
+            var value = "";
+            var text = "\u0304fō̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄̄o";
+            var token = LexToken(text);
+
+            var arr = text.ToCharArray();
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.BadToken, token.Kind());
+            Assert.Equal("", token.Text);
+            var errors = token.Errors();
+            Assert.Equal(1, errors.Length);
+            Assert.Equal("", token.ValueText);
+            var error = errors.ElementAt(0);
+            error.ErrorCodeEquals(ErrorCode.ERR_UnexpectedCharacter);
+            error.ArgumentsEqual(value);
+        }
+
+        [Fact]
+        [Trait("Feature", "BadToken")]
+        public void TestBadTokenWithSpaceLookingCharacters()
+        {
+            var value = "";
+            var text = "\u034fmy͏very͏long͏identifier"; // These are COMBINING GRAPHEME JOINERs, not actual spaces
+            var token = LexToken(text);
+
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.BadToken, token.Kind());
+            Assert.Equal("", token.Text);
+            var errors = token.Errors();
+            Assert.Equal(1, errors.Length);
+            Assert.Equal("", token.ValueText);
+            var error = errors.ElementAt(0);
+            error.ErrorCodeEquals(ErrorCode.ERR_UnexpectedCharacter);
+            error.ArgumentsEqual(value);
+        }
+
+        [Fact]
+        [Trait("Feature", "BadToken")]
+        public void TestNonLatinBadToken()
+        {
+            var value = "";
+            var text = "\u00C6sh";
+            var token = LexToken(text);
+
+            Assert.NotEqual('\\', text[0]);
+            Assert.Equal(System.Globalization.UnicodeCategory.UppercaseLetter, CharUnicodeInfo.GetUnicodeCategory(text[0]));
+
+            Assert.NotEqual(default, token);
+            Assert.Equal(SyntaxKind.BadToken, token.Kind());
+            Assert.Equal("", token.Text);
+            var errors = token.Errors();
+            Assert.Equal(1, errors.Length);
+            Assert.Equal("", token.ValueText);
+            var error = errors.ElementAt(0);
+            error.ErrorCodeEquals(ErrorCode.ERR_UnexpectedCharacter);
+            error.ArgumentsEqual(value);
+        }
+
+        #endregion Identifier
 
         //[Fact]
         //[Trait("Feature", "Literals")]

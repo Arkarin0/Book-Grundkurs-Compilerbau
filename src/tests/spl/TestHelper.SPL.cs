@@ -146,6 +146,12 @@ namespace BGC.CodeAnalysis
 
             return diagnosticInfo;
         }
+        public static T ArgumentsEqual<T>(this T diagnosticInfo, params object[] args) where T : DiagnosticInfo
+        {
+            Assert.Equal(args, diagnosticInfo.Arguments);
+
+            return diagnosticInfo;
+        }
 
         #region SyntaxDiagnosticInfo Tests
         public static void CTorSyntaxDiagnosticInfo(SyntaxDiagnosticInfo @object, int offset, int width, ErrorCode errorCode, object[] arguments)

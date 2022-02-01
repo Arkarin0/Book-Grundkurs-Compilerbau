@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Sonea.Utilities;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +10,35 @@ namespace BGC.CodeAnalysis.SPL
 {
     public static partial class SyntaxFacts
     {
+
+        /// <summary>
+        /// Returns true if the Unicode character can be the starting character of a C# identifier.
+        /// </summary>
+        /// <param name="ch">The Unicode character.</param>
+        public static bool IsIdentifierStartCharacter(char ch)
+        {
+            return UnicodeCharacterUtilities.IsIdentifierStartCharacter(ch);
+        }
+
+        /// <summary>
+        /// Returns true if the Unicode character can be a part of a C# identifier.
+        /// </summary>
+        /// <param name="ch">The Unicode character.</param>
+        public static bool IsIdentifierPartCharacter(char ch)
+        {
+            return UnicodeCharacterUtilities.IsIdentifierPartCharacter(ch);
+        }
+
+        /// <summary>
+        /// Check that the name is a valid identifier.
+        /// </summary>
+        public static bool IsValidIdentifier([NotNullWhen(true)] string? name)
+        {
+            return UnicodeCharacterUtilities.IsValidIdentifier(name);
+        }
+
+
+
         /// <summary>
         /// Returns true if the Unicode character is a hexadecimal digit.
         /// </summary>

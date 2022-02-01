@@ -14,6 +14,15 @@ namespace BGC.CodeAnalysis.SPL
 
         }
 
+        protected void AddError(ErrorCode code)
+        {
+            this.AddError(MakeError(code));
+        }
+
+        protected void AddError(ErrorCode code, params object[] args)
+        {
+            this.AddError(MakeError(code, args));
+        }
 
         protected static SyntaxDiagnosticInfo MakeError(ErrorCode code)
         {
