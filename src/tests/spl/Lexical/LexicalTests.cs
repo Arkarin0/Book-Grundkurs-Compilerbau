@@ -94,7 +94,7 @@ namespace BGC.Core.Lexical.Tests
             TestPunctuation(SyntaxKind.OpenBracketToken);
             TestPunctuation(SyntaxKind.CloseBracketToken);
             //TestPunctuation(SyntaxKind.SingleQuoteToken);// literal Character
-            TestPunctuation(SyntaxKind.UnderscoreToken);
+            //TestPunctuation(SyntaxKind.UnderscoreToken);// identifier
             
             //compound punctuation
             TestPunctuation(SyntaxKind.ColonEqualToken);

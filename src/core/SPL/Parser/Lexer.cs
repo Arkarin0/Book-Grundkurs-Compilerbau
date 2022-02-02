@@ -34,6 +34,7 @@ namespace BGC.CodeAnalysis.SPL
         }
 
         protected readonly StringBuilder builder;
+        protected readonly LexerCache _cache;
 
         private char[] _identBuffer;
         private int _identLen;
@@ -43,6 +44,7 @@ namespace BGC.CodeAnalysis.SPL
         public Lexer(SourceText text)
             : base(text)
         {
+            this._cache= new LexerCache();
             this.builder = new StringBuilder();
             this._identBuffer = new char[32];
         }
@@ -346,10 +348,11 @@ namespace BGC.CodeAnalysis.SPL
             if(ScanIdentifier(ref info))
             {
                 //check if the text found is a keyword
-                //if (!_cache.TryGetKeywordKind(info.Text, out info.Kind))
-                //{
-                //    /*info.ContextualKind =*/ info.Kind = SyntaxKind.IdentifierToken;
-                //}
+                if (!_cache.TryGetKeywordKind(info.Text, out info.Kind))
+                {
+                    /*info.ContextualKind =*/
+                    info.Kind = SyntaxKind.IdentifierToken;
+                }
                 //else if (SyntaxFacts.IsContextualKeyword(info.Kind))
                 //{
                 //    info.ContextualKind = info.Kind;

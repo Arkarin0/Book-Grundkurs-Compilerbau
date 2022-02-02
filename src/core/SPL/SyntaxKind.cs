@@ -53,8 +53,6 @@ namespace BGC.CodeAnalysis.SPL
         CloseBracketToken = 8016,
         /// <summary>Represents <c>'</c> token.</summary>
         SingleQuoteToken = 8017,
-        /// <summary>Represents <c>_</c> token.</summary>
-        UnderscoreToken = 8018,
         //
         //compound punctuation
         //
@@ -89,6 +87,8 @@ namespace BGC.CodeAnalysis.SPL
         //
         // Other
         //
+        /// <summary>Represents <c>_</c> token.</summary>
+        UnderscoreToken = 8299,
         /// <summary>Represents the end of a file.</summary>
         EndOfFileToken = 8300, //NB: this is assumed to be the last textless token
 
